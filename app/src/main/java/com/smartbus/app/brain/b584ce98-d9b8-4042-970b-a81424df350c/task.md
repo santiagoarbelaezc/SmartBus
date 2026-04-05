@@ -1,0 +1,33 @@
+# SmartBus Colombia Android UI Implementation
+
+## Task Checklist
+- [x] Set up Brand Theme (Color, Typography, Theme) <!-- id: 100 -->
+- [x] Create Reusable Components in `ui/components/` <!-- id: 101 -->
+- [x] Implement Navigation Logic and AppNavGraph <!-- id: 102 -->
+- [x] Implement Screen 1: Home Screen <!-- id: 103 -->
+- [x] Implement Screen 2: Search Screen <!-- id: 104 -->
+- [x] Implement Screen 3: Seat Selection Screen <!-- id: 105 -->
+- [x] Implement Screen 4: Payment Screen <!-- id: 106 -->
+- [x] Implement Screen 5: My Tickets Screen <!-- id: 107 -->
+- [x] Implement Screen 6: Live Tracking Screen <!-- id: 108 -->
+- [x] Implement Screen 7: Points Screen <!-- id: 109 -->
+- [x] Implement Screen 8: Travel Credit Screen <!-- id: 110 -->
+- [x] Implement Screen 9: Profile Screen <!-- id: 111 -->
+- [x] Final Polish, Transitions, and Animations <!-- id: 112 -->
+- [x] Verification and Walkthrough <!-- id: 113 -->
+- [x] Fix Compilation Errors (Icons, M3 APIs, Imports) <!-- id: 114 -->
+- [x] Refactor MainActivity for robustness <!-- id: 115 -->
+- [x] Implement Screen 10: Splash Screen with animation <!-- id: 116 -->
+- [x] Implement Screen 11: Login Screen (Auth) <!-- id: 117 -->
+- [x] Implement Screen 12: Register Screen (Auth) <!-- id: 118 -->
+- [x] Implement Screen 13: NFC Payment Screen with waves animation <!-- id: 119 -->
+- [x] Redesign Search Screen (Header + Floating Card + Results) <!-- id: 120 -->
+- [x] Integrate Google Maps in Tracking Screen <!-- id: 121 -->
+- [x] Create app resources (raw, drawable, strings) <!-- id: 122 -->
+- [/] Authentication Overhaul <!-- id: 123 -->
+    - [x] Redesign LoginScreen with premium details.
+    - [x] Replace Google icon with high-fidelity brand version.
+    - [x] Complete RegisterScreen with (Full Name, Doc ID, Phone, Email, Password).
+    - [x] Update RegisterViewModel and RegisterUiState.
+    - [ ] Add loading & error states to Login and Register.
+    - [ ] Switch to `smartbus.png` icon and increase size.

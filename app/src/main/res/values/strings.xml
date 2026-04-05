@@ -1,3 +1,64 @@
 <resources>
-    <string name="app_name">SmartBus</string>
+    <string name="app_name">SmartBus Colombia</string>
+    <string name="greeting_hola">Hola, %1$s</string>
+    <string name="next_trip">Próximo viaje</string>
+    <string name="search_route">Buscar ruta</string>
+    <string name="my_tickets">Mis tiquetes</string>
+    <string name="tracking">Rastreo</string>
+    <string name="points">Mis puntos</string>
+    <string name="continue_to_payment">Continuar al pago</string>
+    <string name="pay_now">Pagar ahora</string>
+    <string name="use_credit">Usar crédito en mi próximo viaje</string>
+    <string name="active">Activos</string>
+    <string name="history">Historial</string>
+    <string name="track_bus">Rastrear bus</string>
+
+    <!-- Splash Screen -->
+    <string name="app_tagline">Viaja inteligente</string>
+    <string name="app_logo_description">Logo de SmartBus</string>
+
+    <!-- Login Screen -->
+    <string name="welcome_back">Bienvenido de nuevo</string>
+    <string name="login_subtitle">Inicia sesión para continuar</string>
+    <string name="email">Correo electrónico</string>
+    <string name="password">Contraseña</string>
+    <string name="forgot_password">¿Olvidaste tu contraseña?</string>
+    <string name="login_btn">Iniciar sesión</string>
+    <string name="or_continue_with">o continúa con</string>
+    <string name="google_sign_in">Continuar con Google</string>
+    <string name="no_account">¿No tienes cuenta? Regístrate</string>
+
+    <!-- Register Screen -->
+    <string name="create_account">Crea tu cuenta</string>
+    <string name="full_name">Nombre completo</string>
+    <string name="phone">Teléfono</string>
+    <string name="confirm_password">Confirmar contraseña</string>
+    <string name="accept_terms">Acepto los Términos y condiciones</string>
+    <string name="register_btn">Crear cuenta</string>
+    <string name="already_have_account">¿Ya tienes cuenta? Inicia sesión</string>
+
+    <!-- NFC Payment Screen -->
+    <string name="nfc_payment_title">Pago NFC</string>
+    <string name="nfc_instruction">Acerca tu teléfono</string>
+    <string name="nfc_sub_instruction">al lector del bus</string>
+    <string name="available_balance">Saldo disponible SmartBus</string>
+    <string name="approx_fare">Tarifa aproximada bus urbano</string>
+    <string name="last_payment">Último pago</string>
+    <string name="use_points_discount">Usar puntos como descuento</string>
+    <string name="reading">Leyendo...</string>
+    <string name="payment_success">¡Pago exitoso!</string>
+    <string name="payment_error">Error de lectura, intenta de nuevo</string>
+
+    <!-- Search Redesign -->
+    <string name="where_to_go">¿A dónde vas hoy?</string>
+    <string name="origin_city">Ciudad de origen</string>
+    <string name="destination_city">Ciudad de destino</string>
+    <string name="passengers">Pasajeros</string>
+    <string name="available_results">Resultados disponibles</string>
+    <string name="per_person">por persona</string>
+    <string name="seats_left">%1$s asientos</string>
+    <string name="filter_cheapest">Más barato</string>
+    <string name="filter_fastest">Más rápido</string>
+    <string name="filter_available">Más disponible</string>
+    <string name="use_credit_long">Usar crédito en mi próximo viaje</string>
 </resources>
