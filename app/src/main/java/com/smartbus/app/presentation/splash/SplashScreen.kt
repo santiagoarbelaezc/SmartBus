@@ -56,9 +56,9 @@ fun SplashScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Image(
-                    painter = painterResource(id = R.raw.icon_smartbus),
+                    painter = painterResource(id = R.raw.smartbus),
                     contentDescription = stringResource(R.string.app_logo_description),
-                    modifier = Modifier.size(120.dp)
+                    modifier = Modifier.size(150.dp)
                 )
                 
                 Spacer(modifier = Modifier.height(16.dp))
