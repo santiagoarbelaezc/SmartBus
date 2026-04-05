@@ -57,20 +57,20 @@ fun LoginScreen(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 20.dp)
+                    modifier = Modifier.padding(bottom = 10.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.raw.smartbus),
                         contentDescription = null,
-                        modifier = Modifier.size(140.dp)
+                        modifier = Modifier.size(170.dp)
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         "SmartBus",
                         color = Gold,
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Black,
-                        letterSpacing = 4.sp
+                        letterSpacing = 4.sp,
+                        modifier = Modifier.offset(y = (-15).dp)
                     )
                 }
             }
@@ -142,7 +142,8 @@ fun LoginScreen(
                     SmartBusButton(
                         text = "Iniciar Sesión",
                         onClick = { viewModel.login(onLoginSuccess) },
-                        modifier = Modifier.height(50.dp)
+                        modifier = Modifier.height(50.dp),
+                        enabled = true // Always allow
                     )
 
                     // Social Login Section

@@ -56,18 +56,22 @@ fun TripResultCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Company Logo Placeholder
+                    // Company Logo
                     Surface(
-                        modifier = Modifier.size(32.dp),
-                        shape = androidx.compose.foundation.shape.CircleShape,
-                        color = Gold.copy(alpha = 0.1f)
+                        modifier = Modifier.size(36.dp),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp),
+                        color = Color.White,
+                        shadowElevation = 2.dp
                     ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            Text("SB", color = Gold, fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                        }
+                        androidx.compose.foundation.Image(
+                            painter = androidx.compose.ui.res.painterResource(id = result.companyImageRes),
+                            contentDescription = result.companyName,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("SmartBus Express", fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(result.companyName, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Column(horizontalAlignment = Alignment.End) {

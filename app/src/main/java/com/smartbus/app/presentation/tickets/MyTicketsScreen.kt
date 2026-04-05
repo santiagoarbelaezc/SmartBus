@@ -126,19 +126,35 @@ fun TicketItemFixed(ticket: TicketInfo, onTrack: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "${ticket.origin} → ${ticket.destination}",
-                        fontWeight = FontWeight.ExtraBold,
-                        fontSize = 18.sp,
-                        color = Black
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = ticket.date,
-                        color = Color.Gray,
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        modifier = Modifier.size(44.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        color = Color.White,
+                        shadowElevation = 2.dp
+                    ) {
+                        androidx.compose.foundation.Image(
+                            painter = androidx.compose.ui.res.painterResource(id = ticket.companyImageRes),
+                            contentDescription = ticket.companyName,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Column {
+                        Text(
+                            text = "${ticket.origin} → ${ticket.destination}",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 18.sp,
+                            color = Black
+                        )
+                        Text(
+                            text = ticket.companyName,
+                            fontSize = 11.sp,
+                            color = Gold,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
                 Surface(
                     color = Gold.copy(alpha = 0.1f),

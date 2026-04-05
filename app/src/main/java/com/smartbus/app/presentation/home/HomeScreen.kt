@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -166,7 +167,7 @@ fun HomeScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp),
+                    .height(110.dp),
                 colors = CardDefaults.cardColors(containerColor = Gold.copy(alpha = 0.1f)),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Gold)
             ) {
@@ -182,6 +183,42 @@ fun HomeScreen(
                         uiState.promotions.first().description,
                         fontSize = 14.sp
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Trusted Partners (New Section)
+            Text(
+                "Empresas Aliadas",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            androidx.compose.foundation.lazy.LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 24.dp)
+            ) {
+                val partners = listOf(
+                    R.raw.busbolivariano,
+                    R.raw.busflota,
+                    R.raw.busgacela,
+                    R.raw.smartbus
+                )
+                items(partners) { partnerImg ->
+                    Surface(
+                        modifier = Modifier.size(60.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = White,
+                        shadowElevation = 2.dp
+                    ) {
+                        androidx.compose.foundation.Image(
+                            painter = androidx.compose.ui.res.painterResource(id = partnerImg),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                        )
+                    }
                 }
             }
         }

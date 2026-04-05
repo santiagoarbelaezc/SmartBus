@@ -32,10 +32,20 @@ import com.smartbus.app.presentation.auth.register.RegisterViewModel
 import com.smartbus.app.presentation.nfc.NFCPaymentScreen
 import com.smartbus.app.presentation.nfc.NFCPaymentViewModel
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.remember
+
+import com.smartbus.app.presentation.auth.register.RegistrationStep2Screen
+import com.smartbus.app.presentation.auth.register.RegistrationStep3Screen
+import com.smartbus.app.presentation.auth.register.RegistrationLoadingScreen
+
 @Composable
 fun AppNavGraph(
     navController: NavHostController
 ) {
+    val registerViewModel: RegisterViewModel = viewModel()
+    
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
@@ -85,15 +95,51 @@ fun AppNavGraph(
 
         composable(Screen.Register.route) {
             RegisterScreen(
-                viewModel = RegisterViewModel(),
+                viewModel = registerViewModel,
                 onRegisterSuccess = {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Register.route) { inclusive = true }
-                    }
+                    navController.navigate(Screen.RegisterStep2.route)
                 },
                 onNavigateToLogin = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Register.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.RegisterStep2.route) {
+            RegistrationStep2Screen(
+                viewModel = registerViewModel,
+                onNext = {
+                    navController.navigate(Screen.RegisterStep3.route)
+                },
+                onSkip = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.RegisterStep3.route) {
+            RegistrationStep3Screen(
+                viewModel = registerViewModel,
+                onFinish = {
+                    navController.navigate(Screen.RegisterLoading.route)
+                },
+                onSkip = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.RegisterLoading.route) {
+            RegistrationLoadingScreen(
+                onFinished = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
             )

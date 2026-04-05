@@ -56,18 +56,20 @@ fun RegisterScreen(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    modifier = Modifier.padding(bottom = 5.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.raw.smartbus),
                         contentDescription = null,
-                        modifier = Modifier.size(90.dp)
+                        modifier = Modifier.size(110.dp)
                     )
                     Text(
                         text = "Crea tu Cuenta",
                         color = Gold,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp,
+                        modifier = Modifier.offset(y = (-8).dp)
                     )
                 }
             }
@@ -229,7 +231,6 @@ fun RegisterScreen(
                         SmartBusButton(
                             text = "Registrarme",
                             onClick = { viewModel.register(onRegisterSuccess) },
-                            enabled = uiState.termsAccepted && !uiState.isLoading,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(24.dp))

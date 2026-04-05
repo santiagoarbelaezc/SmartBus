@@ -26,14 +26,9 @@ class LoginViewModel : ViewModel() {
     }
 
     fun login(onSuccess: () -> Unit) {
-        if (_uiState.value.email.isBlank() || _uiState.value.password.isBlank()) {
-            _uiState.update { it.copy(error = "Por favor completa todos los campos") }
-            return
-        }
-
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            delay(2000) // Simulate network request
+            delay(1500) // Simulate network request
             _uiState.update { it.copy(isLoading = false) }
             onSuccess()
         }
