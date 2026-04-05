@@ -66,20 +66,6 @@ Arquitectura **Clean Architecture + MVVM**, conectado a una API REST centralizad
 
 ---
 
-## 🚀 Instalación
-```bash
-git clone https://github.com/tu-usuario/smartbus-android.git
-
-# Agregar en /app/
-# - google-services.json
-
-# Agregar en local.properties
-MAPS_API_KEY=your_google_maps_key
-BASE_URL=https://api.smartbus.com/v1/
-
-# Compilar
-./gradlew assembleDebug
-```
 
 ---
 
