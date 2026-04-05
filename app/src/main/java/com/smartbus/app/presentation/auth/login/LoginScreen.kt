@@ -4,7 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
 import com.smartbus.app.ui.components.SmartBusButton
 import com.smartbus.app.ui.components.SmartBusTextField
+import com.smartbus.app.ui.components.SmartBusLoadingOverlay
+import com.smartbus.app.ui.components.GoogleSignInButton
 import com.smartbus.app.ui.theme.Black
 import com.smartbus.app.ui.theme.Gold
 
@@ -46,7 +47,7 @@ fun LoginScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.White)) {
-            // Black Top Background (35%)
+            // Black Top Background (38%)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -58,11 +59,10 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.padding(bottom = 20.dp)
                 ) {
-                    // Larger smartbus.png icon
                     Image(
                         painter = painterResource(id = R.raw.smartbus),
                         contentDescription = null,
-                        modifier = Modifier.size(140.dp) // Significantly larger
+                        modifier = Modifier.size(140.dp)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -75,7 +75,7 @@ fun LoginScreen(
                 }
             }
 
-            // White Card Section
+            // White Card Section (68%)
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -139,17 +139,11 @@ fun LoginScreen(
                         }
                     }
 
-                    Box(contentAlignment = Alignment.Center) {
-                        SmartBusButton(
-                            text = if (uiState.isLoading) "" else "Iniciar Sesión",
-                            onClick = { viewModel.login(onLoginSuccess) },
-                            enabled = !uiState.isLoading,
-                            modifier = Modifier.height(50.dp)
-                        )
-                        if (uiState.isLoading) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
-                        }
-                    }
+                    SmartBusButton(
+                        text = "Iniciar Sesión",
+                        onClick = { viewModel.login(onLoginSuccess) },
+                        modifier = Modifier.height(50.dp)
+                    )
 
                     // Social Login Section
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -184,68 +178,11 @@ fun LoginScreen(
                     }
                 }
             }
-        }
-    }
-}
 
-@Composable
-fun GoogleSignInButton(onClick: () -> Unit) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp),
-        shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f)),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = Black)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            GoogleLogoIcon()
-            Spacer(modifier = Modifier.width(12.dp))
-            Text("Continuar con Google", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+            // High-fidelity Loading Overlay
+            if (uiState.isLoading) {
+                SmartBusLoadingOverlay()
+            }
         }
-    }
-}
-
-@Composable
-fun GoogleLogoIcon() {
-    androidx.compose.foundation.Canvas(modifier = Modifier.size(20.dp)) {
-        val strokeWidth = size.width * 0.25f
-        
-        // Google Red (Top segment)
-        drawArc(
-            color = Color(0xFFEA4335),
-            startAngle = 180f, sweepAngle = 90f, useCenter = false,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-            size = size, topLeft = androidx.compose.ui.geometry.Offset.Zero
-        )
-        // Google Yellow (Left segment)
-        drawArc(
-            color = Color(0xFFFBBC05),
-            startAngle = 135f, sweepAngle = 45f, useCenter = false,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-            size = size, topLeft = androidx.compose.ui.geometry.Offset.Zero
-        )
-        // Google Green (Bottom segment)
-        drawArc(
-            color = Color(0xFF34A853),
-            startAngle = 0f, sweepAngle = 180f, useCenter = false,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-            size = size, topLeft = androidx.compose.ui.geometry.Offset.Zero
-        )
-        // Google Blue (Right segment)
-        drawArc(
-            color = Color(0xFF4285F4),
-            startAngle = -45f, sweepAngle = 45f, useCenter = false,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-            size = size, topLeft = androidx.compose.ui.geometry.Offset.Zero
-        )
-        // Horizontal bar
-        drawLine(
-            color = Color(0xFF4285F4),
-            start = androidx.compose.ui.geometry.Offset(size.width * 0.5f, size.height * 0.5f),
-            end = androidx.compose.ui.geometry.Offset(size.width, size.height * 0.5f),
-            strokeWidth = strokeWidth
-        )
     }
 }

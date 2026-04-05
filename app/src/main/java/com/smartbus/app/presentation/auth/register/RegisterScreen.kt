@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
 import com.smartbus.app.ui.components.SmartBusButton
 import com.smartbus.app.ui.components.SmartBusTextField
+import com.smartbus.app.ui.components.SmartBusLoadingOverlay
 import com.smartbus.app.ui.theme.Black
 import com.smartbus.app.ui.theme.Gold
 
@@ -45,7 +46,7 @@ fun RegisterScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues).background(Color.White)) {
-            // Black Top Background (Slightly smaller to fit more fields)
+            // Black Top Background
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -225,17 +226,12 @@ fun RegisterScreen(
                     }
 
                     item {
-                        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
-                            SmartBusButton(
-                                text = if (uiState.isLoading) "" else "Registrarme",
-                                onClick = { viewModel.register(onRegisterSuccess) },
-                                enabled = uiState.termsAccepted && !uiState.isLoading,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            if (uiState.isLoading) {
-                                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
-                            }
-                        }
+                        SmartBusButton(
+                            text = "Registrarme",
+                            onClick = { viewModel.register(onRegisterSuccess) },
+                            enabled = uiState.termsAccepted && !uiState.isLoading,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                         Spacer(modifier = Modifier.height(24.dp))
                     }
 
@@ -252,6 +248,11 @@ fun RegisterScreen(
                         }
                     }
                 }
+            }
+
+            // High-fidelity Loading Overlay
+            if (uiState.isLoading) {
+                SmartBusLoadingOverlay()
             }
         }
     }

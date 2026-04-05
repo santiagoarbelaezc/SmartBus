@@ -24,10 +24,8 @@
 - [x] Redesign Search Screen (Header + Floating Card + Results) <!-- id: 120 -->
 - [x] Integrate Google Maps in Tracking Screen <!-- id: 121 -->
 - [x] Create app resources (raw, drawable, strings) <!-- id: 122 -->
-- [x] Authentication Overhaul <!-- id: 123 -->
-    - [x] Redesign LoginScreen with premium details.
-    - [x] Replace Google icon with high-fidelity brand version.
-    - [x] Complete RegisterScreen with (Full Name, Doc ID, Phone, Email, Password).
-    - [x] Update RegisterViewModel and RegisterUiState.
-    - [x] Add loading & error states to Login and Register.
-    - [x] Switch to `smartbus.png` icon and increase size.
+- [x] Authentication & Onboarding <!-- id: 123 -->
+    - [x] Redesign LoginScreen/RegisterScreen.
+    - [x] Create WelcomeScreen (Direct Entry Point).
+    - [x] Implement Premium Loading Overlays.
+    - [x] UI/UX Polish: Search & Tickets Scannability.

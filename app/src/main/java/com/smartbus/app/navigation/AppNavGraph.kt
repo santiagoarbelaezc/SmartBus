@@ -24,6 +24,7 @@ import com.smartbus.app.presentation.profile.ProfileScreen
 import com.smartbus.app.presentation.profile.ProfileViewModel
 import com.smartbus.app.presentation.splash.SplashScreen
 import com.smartbus.app.presentation.splash.SplashViewModel
+import com.smartbus.app.presentation.welcome.WelcomeScreen
 import com.smartbus.app.presentation.auth.login.LoginScreen
 import com.smartbus.app.presentation.auth.login.LoginViewModel
 import com.smartbus.app.presentation.auth.register.RegisterScreen
@@ -48,9 +49,21 @@ fun AppNavGraph(
                             popUpTo(Screen.Splash.route) { inclusive = true }
                         }
                     } else {
-                        navController.navigate(Screen.Login.route) {
+                        navController.navigate(Screen.Welcome.route) {
                             popUpTo(Screen.Splash.route) { inclusive = true }
                         }
+                    }
+                }
+            )
+        }
+
+        composable(Screen.Welcome.route) {
+            WelcomeScreen(
+                onNavigateToLogin = { navController.navigate(Screen.Login.route) },
+                onNavigateToRegister = { navController.navigate(Screen.Register.route) },
+                onGoogleSignIn = { 
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
             )
@@ -166,8 +179,8 @@ fun AppNavGraph(
             ProfileScreen(
                 viewModel = ProfileViewModel(),
                 onLogout = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(0) { inclusive = true }
+                    navController.navigate(Screen.Welcome.route) {
+                        popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
             )

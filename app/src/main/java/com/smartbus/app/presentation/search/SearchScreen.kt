@@ -1,5 +1,6 @@
 package com.smartbus.app.presentation.search
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,9 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,10 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
-import com.smartbus.app.ui.components.DashedDivider
-import com.smartbus.app.ui.components.SmartBusButton
-import com.smartbus.app.ui.components.SmartBusCard
-import com.smartbus.app.ui.components.TripResultCard
+import com.smartbus.app.ui.components.*
 import com.smartbus.app.ui.theme.Black
 import com.smartbus.app.ui.theme.Gold
 import com.smartbus.app.ui.theme.White
@@ -36,12 +32,12 @@ fun SearchScreen(
     onResultSelected: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var isSearching by remember { mutableStateOf(false) }
 
-    // Using Scaffold to handle TopAppBar and prevent overlaps
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.where_to_go), color = Gold, style = MaterialTheme.typography.titleLarge) },
+                title = { Text("Buscar Viaje", color = Gold, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null, tint = White)
@@ -50,154 +46,196 @@ fun SearchScreen(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Black)
             )
         },
-        containerColor = White
+        containerColor = Color(0xFFF8F9FA)
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 32.dp)
-        ) {
-            // Header & Search Card Item
-            item {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    // Header background extension
-                    Box(modifier = Modifier.fillMaxWidth().height(100.dp).background(Black))
-                    
-                    // Search Card
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                            .padding(top = 20.dp),
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(containerColor = White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(20.dp)) {
-                            // Origin
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Circle, contentDescription = null, tint = Gold, modifier = Modifier.size(12.dp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                TextField(
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentPadding = PaddingValues(bottom = 32.dp)
+            ) {
+                // Search Header with Card
+                item {
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Box(modifier = Modifier.fillMaxWidth().height(80.dp).background(Black))
+                        
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 20.dp)
+                                .padding(top = 10.dp),
+                            shape = RoundedCornerShape(24.dp),
+                            colors = CardDefaults.cardColors(containerColor = White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                // Origin & Destination UI
+                                SearchInputField(
                                     value = uiState.origin,
                                     onValueChange = viewModel::onOriginChange,
-                                    placeholder = { Text(stringResource(R.string.origin_city)) },
-                                    colors = TextFieldDefaults.colors(
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent
-                                    ),
-                                    modifier = Modifier.weight(1f)
+                                    label = "Origen",
+                                    icon = Icons.Default.TripOrigin,
+                                    iconColor = Gold
                                 )
-                            }
-
-                            // Dashed Line with Swap Button
-                            Row(
-                                modifier = Modifier.fillMaxWidth().height(24.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Box(modifier = Modifier.width(12.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                    DashedDivider(
-                                        modifier = Modifier.fillMaxHeight().width(1.dp).offset(x = 5.dp),
-                                        color = Gold.copy(alpha = 0.3f)
-                                    )
+                                
+                                Box(modifier = Modifier.fillMaxWidth().height(40.dp), contentAlignment = Alignment.CenterStart) {
+                                    VerticalDivider(modifier = Modifier.padding(start = 22.dp).height(40.dp), color = Gold.copy(alpha = 0.2f))
+                                    IconButton(
+                                        onClick = { /* Swap */ },
+                                        modifier = Modifier.padding(start = 8.dp).size(32.dp).background(White, RoundedCornerShape(8.dp))
+                                    ) {
+                                        Icon(Icons.Default.SwapVert, contentDescription = null, tint = Gold, modifier = Modifier.size(20.dp))
+                                    }
                                 }
-                                Spacer(modifier = Modifier.weight(1f))
-                                IconButton(onClick = { /* Swap */ }, modifier = Modifier.size(32.dp)) {
-                                    Icon(Icons.Default.SwapVert, contentDescription = "Swap", tint = Gold)
-                                }
-                            }
 
-                            // Destination
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.Circle, contentDescription = null, tint = Black, modifier = Modifier.size(12.dp))
-                                Spacer(modifier = Modifier.width(12.dp))
-                                TextField(
+                                SearchInputField(
                                     value = uiState.destination,
                                     onValueChange = viewModel::onDestinationChange,
-                                    placeholder = { Text(stringResource(R.string.destination_city)) },
-                                    colors = TextFieldDefaults.colors(
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedIndicatorColor = Color.Transparent,
-                                        focusedIndicatorColor = Color.Transparent
-                                    ),
-                                    modifier = Modifier.weight(1f)
+                                    label = "Destino",
+                                    icon = Icons.Default.LocationOn,
+                                    iconColor = Black
+                                )
+
+                                Spacer(modifier = Modifier.height(20.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    SearchInfoBadge(icon = Icons.Default.CalendarToday, text = "24 Oct", modifier = Modifier.weight(1f))
+                                    SearchInfoBadge(icon = Icons.Default.Group, text = "1 Per.", modifier = Modifier.weight(1f))
+                                }
+
+                                Spacer(modifier = Modifier.height(24.dp))
+
+                                SmartBusButton(
+                                    text = "Buscar Rutas",
+                                    onClick = { 
+                                        isSearching = true
+                                        // Mock delay would happen in VM, but for UI feedback:
+                                    },
+                                    modifier = Modifier.fillMaxWidth().height(52.dp)
                                 )
                             }
-
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), color = Color.LightGray.copy(alpha = 0.2f))
-
-                            // Date and Passengers
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Gold, modifier = Modifier.size(20.dp))
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("24 Oct, 2024", fontSize = 14.sp)
-                                }
-                                VerticalDivider(modifier = Modifier.height(24.dp).padding(horizontal = 12.dp))
-                                Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
-                                    Icon(Icons.Default.Person, contentDescription = null, tint = Gold, modifier = Modifier.size(20.dp))
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("1 Pasajero", fontSize = 14.sp)
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(24.dp))
-
-                            SmartBusButton(
-                                text = "Buscar",
-                                onClick = { /* Search */ },
-                                modifier = Modifier.fillMaxWidth()
-                            )
                         }
                     }
                 }
-            }
 
-            // Results Section Label & Count
-            item {
-                Spacer(modifier = Modifier.height(32.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.available_results),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Black
-                    )
-                    Badge(containerColor = Gold, contentColor = Black) {
-                        Text(uiState.results.size.toString(), modifier = Modifier.padding(horizontal = 4.dp))
+                // Results Header
+                item {
+                    Spacer(modifier = Modifier.height(28.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Resultados Disponibles",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Black
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Surface(
+                            color = Gold.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                uiState.results.size.toString(),
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                color = Gold,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // Filters
+                item {
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 24.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        item { SearchFilterChip(text = "Económico", selected = true) }
+                        item { SearchFilterChip(text = "Rápido", selected = false) }
+                        item { SearchFilterChip(text = "Mañana", selected = false) }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // Results list
+                items(uiState.results) { result ->
+                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                        TripResultCard(result = result, onClick = onResultSelected)
                     }
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            // Filter Row
-            item {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 24.dp)
-                ) {
-                    item { FilterChip(selected = true, onClick = {}, label = { Text(stringResource(R.string.filter_cheapest)) }) }
-                    item { FilterChip(selected = false, onClick = {}, label = { Text(stringResource(R.string.filter_fastest)) }) }
-                    item { FilterChip(selected = false, onClick = {}, label = { Text(stringResource(R.string.filter_available)) }) }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-
-            // Actual Results
-            items(uiState.results) { result ->
-                Box(modifier = Modifier.padding(horizontal = 24.dp, vertical = 6.dp)) {
-                    TripResultCard(result = result, onClick = onResultSelected)
+            // High-fidelity Loading Overlay
+            if (isSearching) {
+                SmartBusLoadingOverlay()
+                LaunchedEffect(Unit) {
+                    kotlinx.coroutines.delay(1500)
+                    isSearching = false
                 }
             }
         }
+    }
+}
+
+@Composable
+fun SearchInputField(value: String, onValueChange: (String) -> Unit, label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, iconColor: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
+        Spacer(modifier = Modifier.width(16.dp))
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = { Text(label, fontSize = 16.sp, color = Color.Gray) },
+            colors = TextFieldDefaults.colors(
+                unfocusedContainerColor = Color.Transparent,
+                focusedContainerColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent
+            ),
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun SearchInfoBadge(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier,
+        color = Color.LightGray.copy(alpha = 0.1f),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.2f))
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 10.dp, horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(icon, contentDescription = null, tint = Gold, modifier = Modifier.size(16.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
+@Composable
+fun SearchFilterChip(text: String, selected: Boolean) {
+    Surface(
+        color = if (selected) Black else White,
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) Black else Color.LightGray.copy(alpha = 0.4f)),
+        onClick = {}
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            color = if (selected) Gold else Color.Gray,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+            fontSize = 13.sp
+        )
     }
 }
