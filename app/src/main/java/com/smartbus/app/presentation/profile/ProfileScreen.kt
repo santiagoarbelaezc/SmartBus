@@ -94,15 +94,6 @@ fun ProfileScreen(
                         .padding(top = 28.dp, bottom = 36.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Decorative blurred circle background
-                    Box(
-                        modifier = Modifier
-                            .size(200.dp)
-                            .clip(CircleShape)
-                            .background(Gold.copy(alpha = 0.06f))
-                            .align(Alignment.Center)
-                    )
-
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         // Profile photo with gold ring
                         Box(

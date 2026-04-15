@@ -1,6 +1,7 @@
 package com.smartbus.app.presentation.seatselection
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -352,24 +353,10 @@ private fun SeatLegendItem(color: Color, border: Color, label: String) {
                 .background(color)
                 .then(
                     if (border != Color.Transparent)
-                        Modifier.then(
-                            androidx.compose.ui.draw.drawWithCache {
-                                onDrawWithContent {
-                                    drawContent()
-                                }
-                            }
-                        )
+                        Modifier.border(1.dp, border, RoundedCornerShape(5.dp))
                     else Modifier
                 )
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(5.dp))
-                    .background(color)
-                    .padding(1.dp)
-            )
-        }
+        )
         Spacer(modifier = Modifier.width(6.dp))
         Text(label, fontSize = 12.sp, color = Color(0xFF555555), fontWeight = FontWeight.Medium)
     }

@@ -61,5 +61,17 @@ sealed class MainRoutes {
     data object TravelCredit : MainRoutes()
 
     @Serializable
+    data object Notifications : MainRoutes()
+
+    @Serializable
+    data object PaymentMethods : MainRoutes()
+
+    @Serializable
+    data object HelpSupport : MainRoutes()
+
+    @Serializable
+    data object Terms : MainRoutes()
+
+    @Serializable
     data object Profile : MainRoutes()
 }

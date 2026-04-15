@@ -54,6 +54,10 @@ import com.smartbus.app.presentation.tracking.TrackingScreen
 import com.smartbus.app.presentation.tracking.TrackingViewModel
 import com.smartbus.app.presentation.travelcredit.TravelCreditScreen
 import com.smartbus.app.presentation.travelcredit.TravelCreditViewModel
+import com.smartbus.app.presentation.notifications.NotificationsScreen
+import com.smartbus.app.presentation.payment.PaymentMethodsScreen
+import com.smartbus.app.presentation.help.HelpSupportScreen
+import com.smartbus.app.presentation.terms.TermsScreen
 import com.smartbus.app.presentation.welcome.WelcomeScreen
 import com.smartbus.app.ui.components.BottomNavBar
 import com.smartbus.app.ui.components.NavigationItem
@@ -345,8 +349,32 @@ private fun BuildNavHost(navController: NavHostController) {
                         popUpTo<MainRoutes.Splash> { inclusive = true }
                     }
                 },
-                onNavigateToTravelCredit = { navController.navigate(MainRoutes.TravelCredit) }
+                onNavigateToTravelCredit      = { navController.navigate(MainRoutes.TravelCredit) },
+                onNavigateToPaymentMethods    = { navController.navigate(MainRoutes.PaymentMethods) },
+                onNavigateToNotifications     = { navController.navigate(MainRoutes.Notifications) },
+                onNavigateToHelp              = { navController.navigate(MainRoutes.HelpSupport) },
+                onNavigateToTerms             = { navController.navigate(MainRoutes.Terms) }
             )
+        }
+
+        // ── Notifications ────────────────────────────────────────────
+        composable<MainRoutes.Notifications> {
+            NotificationsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // ── Payment Methods ──────────────────────────────────────────
+        composable<MainRoutes.PaymentMethods> {
+            PaymentMethodsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // ── Help & Support ───────────────────────────────────────────
+        composable<MainRoutes.HelpSupport> {
+            HelpSupportScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        // ── Terms & Conditions ───────────────────────────────────────
+        composable<MainRoutes.Terms> {
+            TermsScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }
