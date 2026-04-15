@@ -2,7 +2,9 @@ package com.smartbus.app.presentation.home
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -26,11 +28,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.smartbus.app.R
 import com.smartbus.app.core.AppLanguage
 import com.smartbus.app.core.LanguageManager
@@ -44,16 +49,16 @@ import java.util.Calendar
 
 // ── Static feed data ──────────────────────────────────────────────────────────
 
-private data class TipItem(val emoji: String, val title: String, val body: String, val tag: String)
+private data class TipItem(val icon: ImageVector, val iconBg: Color, val title: String, val body: String, val tag: String)
 private data class StatItem(val icon: ImageVector, val value: String, val label: String)
 
 private val busTips = listOf(
-    TipItem("🕐", "Llega 10 min antes", "Los buses salen puntual. Planea con tiempo y evita perder tu tiquete.", "Consejo"),
-    TipItem("📱", "Muestra tu QR", "Asegúrate de tener el QR descargado; algunas terminales no tienen señal.", "Recordatorio"),
-    TipItem("💺", "Asientos delanteros", "Los primeros asientos son más estables y se bajan más rápido.", "Tip"),
-    TipItem("🎒", "Equipaje de mano", "Máx. 10 kg en bodega gratis. Excesos se cobran en taquilla.", "Info"),
-    TipItem("❄️", "Viajes nocturnos", "Lleva una chaqueta ligera; el A/C en viajes nocturnos puede ser intenso.", "Consejo"),
-    TipItem("🔋", "Carga tu celular", "Muchos buses Premier tienen USB en cada asiento. ¡Aprovéchalo!", "Tip"),
+    TipItem(Icons.Default.Schedule, Color(0xFF0D47A1), "Llega 10 min antes", "Los buses salen puntual. Planea con tiempo y evita perder tu tiquete.", "Consejo"),
+    TipItem(Icons.Default.QrCode,   Color(0xFF1B5E20), "Muestra tu QR", "Asegúrate de tener el QR descargado; algunas terminales no tienen señal.", "Recordatorio"),
+    TipItem(Icons.Default.AirlineSeatReclineNormal, Color(0xFF6A1B9A), "Asientos delanteros", "Los primeros asientos son más estables y se bajan más rápido.", "Tip"),
+    TipItem(Icons.Default.Luggage,  Color(0xFFE65100), "Equipaje de mano", "Máx. 10 kg en bodega gratis. Excesos se cobran en taquilla.", "Info"),
+    TipItem(Icons.Default.NightsStay, Color(0xFF37474F), "Viajes nocturnos", "Lleva una chaqueta ligera; el A/C en viajes nocturnos puede ser intenso.", "Consejo"),
+    TipItem(Icons.Default.Usb,      Color(0xFF006064), "Carga tu celular", "Muchos buses Premier tienen USB en cada asiento. ¡Aprovéchalo!", "Tip"),
 )
 
 private val statsRow = listOf(
@@ -80,6 +85,9 @@ fun HomeScreen(
     val currentLang by LanguageManager.currentLanguage.collectAsState()
     val isEn = currentLang == AppLanguage.ENGLISH
     val filteredRoutes = viewModel.filteredRoutes()
+
+    var showRouteDialog by remember { mutableStateOf(false) }
+    var showTrackingDialog by remember { mutableStateOf(false) }
 
     val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     val greeting = when {
@@ -260,7 +268,91 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(28.dp))
             }
 
-            // ── 3. Next trip ──────────────────────────────────────────
+            // ── 3. Current trip (dynamic) ─────────────────────────────
+            item {
+                if (uiState.currentTrip != null) {
+                    val trip = uiState.currentTrip!!
+                    SectionHeader(
+                        title = if (isEn) "Current Trip" else "Viaje Actual",
+                        modifier = Modifier.padding(horizontal = 20.dp)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        shape = RoundedCornerShape(24.dp),
+                        colors = CardDefaults.cardColors(containerColor = Charcoal),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(24.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        PulsingDot(color = Gold)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            "EN CURSO",
+                                            color = Gold,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            letterSpacing = 1.sp
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    Text(
+                                        "${trip.origin} → ${trip.destination}",
+                                        color = White,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 22.sp
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { showTrackingDialog = true },
+                                    modifier = Modifier
+                                        .size(44.dp)
+                                        .clip(CircleShape)
+                                        .background(Gold.copy(alpha = 0.2f))
+                                ) {
+                                    Icon(Icons.Default.MyLocation, null, tint = Gold, modifier = Modifier.size(24.dp))
+                                }
+                            }
+                            
+                            Spacer(modifier = Modifier.height(20.dp))
+                            HorizontalDivider(color = White.copy(alpha = 0.1f))
+                            Spacer(modifier = Modifier.height(20.dp))
+                            
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text("Llegada estimada", color = White.copy(alpha = 0.5f), fontSize = 11.sp)
+                                    Text("12:45 PM", color = White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                }
+                                
+                                Button(
+                                    onClick = { showTrackingDialog = true },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Gold),
+                                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                                ) {
+                                    Text("Seguir en vivo", color = Black, fontWeight = FontWeight.ExtraBold, fontSize = 12.sp)
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(28.dp))
+                }
+            }
+
+            // ── 4. Next trip ──────────────────────────────────────────
             item {
                 SectionHeader(
                     title = if (isEn) "Next Trip" else "Próximo Viaje",
@@ -276,7 +368,7 @@ fun HomeScreen(
                             .padding(horizontal = 20.dp),
                         shape = RoundedCornerShape(20.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.4f))
+                        border = BorderStroke(1.dp, Gold.copy(alpha = 0.4f))
                     ) {
                         Box(
                             modifier = Modifier
@@ -340,6 +432,18 @@ fun HomeScreen(
                                         )
                                     }
                                 }
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(
+                                    onClick = { showRouteDialog = true },
+                                    modifier = Modifier.fillMaxWidth().height(42.dp),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Gold.copy(alpha = 0.15f)),
+                                    border = BorderStroke(1.dp, Gold.copy(alpha = 0.3f))
+                                ) {
+                                    Icon(Icons.Default.Map, null, tint = Gold, modifier = Modifier.size(16.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Ver Mapa de Ruta", color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                }
                             }
                         }
                     }
@@ -351,7 +455,7 @@ fun HomeScreen(
                             .clickable { onNavigateToSearch() },
                         shape = RoundedCornerShape(18.dp),
                         colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8)),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.25f))
+                        border = BorderStroke(1.dp, Gold.copy(alpha = 0.25f))
                     ) {
                         Row(
                             modifier = Modifier.padding(20.dp),
@@ -436,7 +540,7 @@ fun HomeScreen(
                             .height(130.dp),
                         shape = RoundedCornerShape(20.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.3f))
+                        border = BorderStroke(1.dp, Gold.copy(alpha = 0.3f))
                     ) {
                         Box(
                             modifier = Modifier
@@ -509,6 +613,7 @@ fun HomeScreen(
                     R.raw.busbolivariano to "Bolivariano",
                     R.raw.busflota      to "Flota",
                     R.raw.busgacela     to "Gacela",
+                    R.raw.bustinto      to "Tinto",
                     R.raw.smartbus      to "SmartBus"
                 )
                 LazyRow(
@@ -525,13 +630,13 @@ fun HomeScreen(
                                 shape = RoundedCornerShape(18.dp),
                                 color = White,
                                 shadowElevation = 6.dp,
-                                border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.15f))
+                                border = BorderStroke(1.dp, Gold.copy(alpha = 0.15f))
                             ) {
-                                androidx.compose.foundation.Image(
-                                    painter = androidx.compose.ui.res.painterResource(id = imgRes),
+                                Image(
+                                    painter = painterResource(id = imgRes),
                                     contentDescription = name,
                                     modifier = Modifier.fillMaxSize().padding(8.dp),
-                                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                                    contentScale = ContentScale.Fit
                                 )
                             }
                             Spacer(modifier = Modifier.height(6.dp))
@@ -614,6 +719,168 @@ fun HomeScreen(
             }
         }
     }
+
+    if (showRouteDialog) {
+        Dialog(onDismissRequest = { showRouteDialog = false }) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = White
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Mapa de Ruta",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = Black
+                        )
+                        IconButton(onClick = { showRouteDialog = false }) {
+                            Icon(Icons.Default.Close, null, tint = Color.Gray)
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.raw.medellin_bogota2),
+                            contentDescription = "Ruta Medellín - Bogotá",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        "Ruta Medellín - Bogotá",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        fontWeight = FontWeight.Medium
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+        }
+    }
+
+    // ── Tracking Dialog ───────────────────────────────────────────────────────
+    if (showTrackingDialog) {
+        Dialog(onDismissRequest = { showTrackingDialog = false }) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = White
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column {
+                            Text(
+                                "Seguimiento en Vivo",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = Black
+                            )
+                            Text(
+                                "En ruta Armenia - Filandia",
+                                fontSize = 11.sp,
+                                color = Color.Gray
+                            )
+                        }
+                        IconButton(onClick = { showTrackingDialog = false }) {
+                            Icon(Icons.Default.Close, null, tint = Color.Gray)
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(400.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(8.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.raw.rastreo),
+                            contentDescription = "Rastreo",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    
+                    Spacer(modifier = Modifier.height(20.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        TrackingInfoItem("Velocidad", "64 km/h")
+                        TrackingInfoItem("ETA", "1h 20m")
+                        TrackingInfoItem("Estado", "A tiempo")
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TrackingInfoItem(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, fontSize = 10.sp, color = Color.Gray)
+        Text(value, fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Black)
+    }
+}
+
+@Composable
+private fun PulsingDot(color: Color = Color.White) {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    val alpha by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 0.2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(600, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "dot_alpha"
+    )
+    Box(
+        modifier = Modifier
+            .size(8.dp)
+            .clip(CircleShape)
+            .background(color.copy(alpha = alpha))
+    )
 }
 
 // ── Sub-composables ───────────────────────────────────────────────────────────
@@ -668,21 +935,26 @@ private fun TipCard(tip: TipItem, modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F0F0))
+        border = BorderStroke(1.dp, Color(0xFFF0F0F0))
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            // Emoji circle
+            // Icon box
             Box(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Gold.copy(alpha = 0.1f)),
+                    .background(tip.iconBg.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(tip.emoji, fontSize = 22.sp)
+                Icon(
+                    imageVector = tip.icon,
+                    contentDescription = null,
+                    tint = tip.iconBg,
+                    modifier = Modifier.size(24.dp)
+                )
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {

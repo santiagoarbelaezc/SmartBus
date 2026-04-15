@@ -1,5 +1,6 @@
 package com.smartbus.app.presentation.seatselection
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -91,7 +92,7 @@ fun SeatSelectionScreen(
                     shape = RoundedCornerShape(20.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     elevation = CardDefaults.cardElevation(0.dp),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.4f))
+                    border = BorderStroke(1.dp, Gold.copy(alpha = 0.4f))
                 ) {
                     Box(
                         modifier = Modifier
@@ -331,7 +332,7 @@ private fun ExitDoor() {
     Surface(
         color = Color(0xFFE53935).copy(alpha = 0.1f),
         shape = RoundedCornerShape(6.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFE53935).copy(alpha = 0.4f))
+        border = BorderStroke(1.dp, Color(0xFFE53935).copy(alpha = 0.4f))
     ) {
         Text(
             "🚪 SALIDA",

@@ -1,5 +1,6 @@
 package com.smartbus.app.presentation.auth.register
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartbus.app.ui.components.SmartBusButton
@@ -137,7 +139,7 @@ fun RegistrationStep3Screen(
                         "Serás redirigido para autorizar el pago automático.",
                         fontSize = 12.sp,
                         color = Color.Gray,
-                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -168,7 +170,7 @@ fun PaymentMethodChip(
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(14.dp),
         color = if (isSelected) Gold else Color.LightGray.copy(alpha = 0.1f),
-        border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
+        border = if (isSelected) null else BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.3f))
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(

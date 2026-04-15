@@ -186,6 +186,50 @@ val defaultUrbanRoutes = listOf(
         frequency      = "Cada 10 min",
         operatingHours = "5:30 AM – 10:30 PM",
         color          = 0xFF2E7D32
+    ),
+    UrbanRoute(
+        lineNumber     = "28",
+        lineName       = "Línea 28",
+        description    = "Norte – Hospital – El Bosque – Centro",
+        busImageRes    = com.smartbus.app.R.raw.bustinto,
+        logoRes        = com.smartbus.app.R.raw.logotinto,
+        farePrice      = "\$2.900",
+        frequency      = "Cada 12 min",
+        operatingHours = "5:00 AM – 10:30 PM",
+        color          = 0xFF6A1B9A
+    ),
+    UrbanRoute(
+        lineNumber     = "16",
+        lineName       = "Línea 16",
+        description    = "Sena – Hospital – Centro – Granada",
+        busImageRes    = com.smartbus.app.R.raw.bustinto,
+        logoRes        = com.smartbus.app.R.raw.logotinto,
+        farePrice      = "\$2.900",
+        frequency      = "Cada 10 min",
+        operatingHours = "5:15 AM – 10:45 PM",
+        color          = 0xFFEF6C00
+    ),
+    UrbanRoute(
+        lineNumber     = "12",
+        lineName       = "Línea 12",
+        description    = "Puerto Espejo – Centro – UniQuindio",
+        busImageRes    = com.smartbus.app.R.raw.bustinto,
+        logoRes        = com.smartbus.app.R.raw.logotinto,
+        farePrice      = "\$2.900",
+        frequency      = "Cada 15 min",
+        operatingHours = "5:30 AM – 10:00 PM",
+        color          = 0xFF00838F
+    ),
+    UrbanRoute(
+        lineNumber     = "19",
+        lineName       = "Línea 19",
+        description    = "Coliseo – Zuldemayda – Centro – Hospital",
+        busImageRes    = com.smartbus.app.R.raw.bustinto,
+        logoRes        = com.smartbus.app.R.raw.logotinto,
+        farePrice      = "\$2.900",
+        frequency      = "Cada 8 min",
+        operatingHours = "5:00 AM – 11:00 PM",
+        color          = 0xFFFF8F00
     )
 )
 

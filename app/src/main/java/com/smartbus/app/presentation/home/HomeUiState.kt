@@ -9,6 +9,12 @@ enum class RouteFilter(val label: String, val labelEn: String) {
 
 data class HomeUiState(
     val userName: String = "Santiago",
+    val currentTrip: TripInfo? = TripInfo(
+        origin = "Armenia",
+        destination = "Filandia",
+        date = "15 Abr, 2026",
+        time = "Ahora"
+    ),
     val nextTrip: TripInfo? = TripInfo(
         origin = "Medellín",
         destination = "Bogotá",

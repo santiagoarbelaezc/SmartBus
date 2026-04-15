@@ -138,7 +138,7 @@ private fun BuildNavHost(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = MainRoutes.Splash
+        startDestination = MainRoutes.Home
     ) {
         // ── Splash ──────────────────────────────────────────────────
         composable<MainRoutes.Splash> {

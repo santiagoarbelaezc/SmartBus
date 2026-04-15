@@ -4,8 +4,10 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -20,6 +22,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
+import androidx.compose.ui.draw.clip
 import com.smartbus.app.ui.components.SmartBusButton
 import com.smartbus.app.ui.components.SmartBusTextField
 import com.smartbus.app.ui.components.SmartBusLoadingOverlay
@@ -81,31 +84,50 @@ fun LoginScreen(
                 Column(
                     modifier = Modifier
                         .padding(start = 32.dp, top = 32.dp, end = 32.dp, bottom = 24.dp)
-                        .fillMaxSize(),
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween
+                    verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
+                    // ── Header ────────────────────────────────────────
                     Column(modifier = Modifier.fillMaxWidth()) {
+
+                        // "SmartBus" label with gold accent bar
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .width(4.dp)
+                                    .height(28.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(Gold)
+                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text(
+                                "SmartBus",
+                                color = Gold,
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 1.3.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
                         Text(
-                            "SmartBus",
-                            color = Gold,
-                            style = MaterialTheme.typography.headlineLarge,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 4.sp
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Bienvenido",
+                            text = "Bienvenido de nuevo",
                             style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.ExtraBold,
                             color = Black
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Ingresa para continuar",
+                            text = "Ingresa tus credenciales para continuar",
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
+                            color = Color.Gray,
+                            letterSpacing = 0.2.sp
                         )
                     }
+
 
                     Column(modifier = Modifier.fillMaxWidth()) {
                         SmartBusTextField(

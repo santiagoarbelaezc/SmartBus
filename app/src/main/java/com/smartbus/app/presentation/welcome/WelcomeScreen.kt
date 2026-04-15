@@ -5,6 +5,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,7 +56,7 @@ fun WelcomeScreen(
                 .offset(y = (-90).dp)
                 .size(380.dp),
             color = Gold.copy(alpha = 0.04f),
-            shape = androidx.compose.foundation.shape.CircleShape,
+            shape = CircleShape,
             border = null
         ) {}
 
@@ -88,7 +90,7 @@ fun WelcomeScreen(
                             color = Gold,
                             style = MaterialTheme.typography.displayMedium,
                             fontWeight = FontWeight.Black,
-                            letterSpacing = 8.sp,
+                            letterSpacing = 2.sp,
                             textAlign = TextAlign.Center
                         )
                         
@@ -96,7 +98,7 @@ fun WelcomeScreen(
                             text = "COLOMBIA",
                             color = Gold.copy(alpha = 0.6f),
                             style = MaterialTheme.typography.labelLarge,
-                            letterSpacing = 6.sp
+                            letterSpacing = 2.5.sp
                         )
                         
                         Spacer(modifier = Modifier.height(20.dp))
@@ -171,7 +173,7 @@ fun WelcomeActionButton(
             containerColor = if (isPrimary) Gold.copy(alpha = 0.15f) else Color.White.copy(alpha = 0.08f),
             contentColor = Gold
         ),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             1.2.dp, 
             if (isPrimary) Gold else Gold.copy(alpha = 0.4f)
         )

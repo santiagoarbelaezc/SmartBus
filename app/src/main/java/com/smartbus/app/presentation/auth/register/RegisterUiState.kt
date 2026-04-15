@@ -1,15 +1,15 @@
 package com.smartbus.app.presentation.auth.register
 
 data class RegisterUiState(
-    val fullName: String = "",
+    val fullName: String = "Santiago Arbelaez Contreras",
     val documentType: String = "C.C.",
-    val documentNumber: String = "",
-    val email: String = "",
-    val phone: String = "",
-    val password: String = "",
-    val confirmPassword: String = "",
+    val documentNumber: String = "1001361185",
+    val email: String = "santiago@gmail.com",
+    val phone: String = "3054078225",
+    val password: String = "Santi2003",
+    val confirmPassword: String = "Santi2003",
     val isPasswordVisible: Boolean = false,
-    val termsAccepted: Boolean = false,
+    val termsAccepted: Boolean = true,
     val isLoading: Boolean = false,
     val error: String? = null
 )
