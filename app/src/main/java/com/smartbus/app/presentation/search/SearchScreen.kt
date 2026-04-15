@@ -2,6 +2,7 @@ package com.smartbus.app.presentation.search
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
+import com.smartbus.app.ui.components.SmartBusButton
 import com.smartbus.app.ui.components.SmartBusLoadingOverlay
 import com.smartbus.app.ui.theme.Black
 import com.smartbus.app.ui.theme.Charcoal
@@ -80,66 +82,67 @@ fun SearchScreen(
                             .fillMaxWidth()
                             .background(Black)
                             .padding(horizontal = 20.dp)
-                            .padding(top = 8.dp, bottom = 28.dp)
+                            .padding(top = 8.dp, bottom = 32.dp)
                     ) {
-                        Card(
-                            shape = RoundedCornerShape(24.dp),
-                            colors = CardDefaults.cardColors(containerColor = White),
-                            elevation = CardDefaults.cardElevation(12.dp)
-                        ) {
+                        Column {
+                            Text(
+                                "Buscar Ruta",
+                                color = White,
+                                fontWeight = FontWeight.ExtraBold,
+                                fontSize = 28.sp
+                            )
+                            Text(
+                                "Encuentra el mejor viaje para ti",
+                                color = White.copy(alpha = 0.6f),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            
+                            Spacer(modifier = Modifier.height(24.dp))
+                            
+                            Card(
+                                shape = RoundedCornerShape(24.dp),
+                                colors = CardDefaults.cardColors(containerColor = Charcoal),
+                                elevation = CardDefaults.cardElevation(12.dp)
+                            ) {
                             Column(modifier = Modifier.padding(20.dp)) {
 
                                 // Origin field
-                                SearchInputRow(
+                                ModernSearchInput(
+                                    label = "Origen",
                                     value = uiState.origin,
                                     onValueChange = viewModel::onOriginChange,
-                                    placeholder = "Origen",
+                                    placeholder = "¿Desde dónde?",
                                     icon = Icons.Default.TripOrigin,
                                     iconColor = Gold
                                 )
 
-                                // Swap + divider
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(36.dp),
-                                    contentAlignment = Alignment.CenterStart
-                                ) {
-                                    VerticalDivider(
-                                        modifier = Modifier
-                                            .padding(start = 23.dp)
-                                            .height(36.dp),
-                                        color = Color(0xFFE0E0E0)
-                                    )
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(start = 8.dp)
-                                            .size(30.dp)
-                                            .clip(CircleShape)
-                                            .background(Gold)
-                                            .clickable {
-                                                val tmp = uiState.origin
-                                                viewModel.onOriginChange(uiState.destination)
-                                                viewModel.onDestinationChange(tmp)
-                                            },
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Default.SwapVert,
-                                            null,
-                                            tint = Black,
-                                            modifier = Modifier.size(18.dp)
-                                        )
-                                    }
-                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                                HorizontalDivider(color = White.copy(alpha = 0.05f))
+                                Spacer(modifier = Modifier.height(16.dp))
 
                                 // Destination field
-                                SearchInputRow(
+                                ModernSearchInput(
+                                    label = "Destino",
                                     value = uiState.destination,
                                     onValueChange = viewModel::onDestinationChange,
-                                    placeholder = "Destino",
+                                    placeholder = "¿Hacia dónde?",
                                     icon = Icons.Default.LocationOn,
-                                    iconColor = Color(0xFFE53935)
+                                    iconColor = Color(0xFFFBC02D)
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+                                HorizontalDivider(color = White.copy(alpha = 0.05f))
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Date field
+                                ModernSearchInput(
+                                    label = "Fecha",
+                                    value = "Hoy, 15 Abr", // Mocked for now
+                                    onValueChange = {},
+                                    placeholder = "dd/mm/aaaa",
+                                    icon = Icons.Default.CalendarToday,
+                                    iconColor = Gold
                                 )
 
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -162,7 +165,7 @@ fun SearchScreen(
                                         modifier = Modifier.weight(1f)
                                     )
                                     InfoBadge(
-                                        icon = Icons.Default.AirlineSeatReclineNormal,
+                                        icon = Icons.Default.EventSeat,
                                         text = "Cualquier clase",
                                         modifier = Modifier.weight(1.4f)
                                     )
@@ -171,27 +174,17 @@ fun SearchScreen(
                                 Spacer(modifier = Modifier.height(20.dp))
 
                                 // Search button
-                                Button(
+                                SmartBusButton(
+                                    text = "Buscar Viajes",
                                     onClick = { isSearching = true },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(52.dp),
-                                    shape = RoundedCornerShape(16.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Black)
-                                ) {
-                                    Icon(Icons.Default.Search, null, tint = Gold, modifier = Modifier.size(20.dp))
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Text(
-                                        "Buscar Rutas",
-                                        color = Gold,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        fontSize = 16.sp
-                                    )
-                                }
+                                    isSecondary = true,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
                     }
                 }
+            }
 
                 // ── Tabs ──────────────────────────────────────────────
                 item {
@@ -215,7 +208,55 @@ fun SearchScreen(
                             modifier = Modifier.weight(1f)
                         )
                     }
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    // Filter Chips Row
+                    LazyRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(horizontal = 20.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(SearchFilter.values()) { filter ->
+                            val isSelected = uiState.selectedFilter == filter
+                            val chipBg by animateColorAsState(
+                                targetValue = if (isSelected) Gold else White,
+                                animationSpec = tween(300),
+                                label = "chipBg"
+                            )
+                            val chipText by animateColorAsState(
+                                targetValue = if (isSelected) Black else Color.Gray,
+                                animationSpec = tween(300),
+                                label = "chipText"
+                            )
+
+                            Surface(
+                                modifier = Modifier.clickable { 
+                                    viewModel.onFilterSelected(filter)
+                                },
+                                shape = RoundedCornerShape(12.dp),
+                                color = chipBg,
+                                border = if (!isSelected) BorderStroke(1.dp, Color(0xFFE0E0E0)) else null,
+                                shadowElevation = if (isSelected) 4.dp else 0.dp
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (isSelected) {
+                                        Icon(Icons.Default.FilterList, null, tint = Black, modifier = Modifier.size(14.dp))
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                    }
+                                    Text(
+                                        filter.label,
+                                        color = chipText,
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
                 }
 
                 // ── INTERCITY routes ──────────────────────────────────
@@ -326,7 +367,8 @@ fun SearchScreen(
 // ── Sub-composables ───────────────────────────────────────────────────────────
 
 @Composable
-private fun SearchInputRow(
+private fun ModernSearchInput(
+    label: String,
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
@@ -335,36 +377,40 @@ private fun SearchInputRow(
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().clickable { /* Opens picker if needed */ }
     ) {
         Box(
             modifier = Modifier
-                .size(30.dp)
+                .size(42.dp)
                 .clip(CircleShape)
-                .background(iconColor.copy(alpha = 0.1f)),
+                .background(iconColor.copy(alpha = 0.15f)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(icon, null, tint = iconColor, modifier = Modifier.size(16.dp))
+            Icon(icon, null, tint = iconColor, modifier = Modifier.size(18.dp))
         }
-        Spacer(modifier = Modifier.width(12.dp))
-        TextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = { Text(placeholder, color = Color(0xFFAAAAAA), fontSize = 15.sp) },
-            singleLine = true,
-            colors = TextFieldDefaults.colors(
-                unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor   = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor   = Color.Transparent
-            ),
-            modifier = Modifier.weight(1f),
-            textStyle = LocalTextStyle.current.copy(
-                fontSize   = 15.sp,
-                fontWeight = FontWeight.SemiBold,
-                color      = Color(0xFF1A1A1A)
+        Spacer(modifier = Modifier.width(16.dp))
+        Column {
+            Text(label, color = White.copy(alpha = 0.4f), fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            TextField(
+                value = value,
+                onValueChange = onValueChange,
+                placeholder = { Text(placeholder, color = White.copy(alpha = 0.2f), fontSize = 15.sp) },
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedContainerColor   = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    focusedIndicatorColor   = Color.Transparent,
+                    cursorColor = Gold
+                ),
+                modifier = Modifier.offset(x = (-16).dp), // Adjust for TextField internal padding
+                textStyle = LocalTextStyle.current.copy(
+                    fontSize   = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color      = White
+                )
             )
-        )
+        }
     }
 }
 

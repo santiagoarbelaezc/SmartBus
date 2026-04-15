@@ -73,5 +73,8 @@ sealed class MainRoutes {
     data object Terms : MainRoutes()
 
     @Serializable
+    data object PaymentSuccess : MainRoutes()
+
+    @Serializable
     data object Profile : MainRoutes()
 }

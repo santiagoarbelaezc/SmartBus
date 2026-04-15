@@ -6,7 +6,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Nfc
@@ -53,7 +55,8 @@ fun NFCPaymentScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
@@ -137,37 +140,23 @@ fun NFCPaymentScreen(
                 colors = CardDefaults.cardColors(containerColor = Charcoal),
                 border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.3f))
             ) {
-                Column(modifier = Modifier.padding(24.dp)) {
-                    Text(stringResource(R.string.available_balance), color = Gold, style = MaterialTheme.typography.labelSmall)
-                    Text(uiState.availableBalance, color = White, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Column {
-                            Text(stringResource(R.string.approx_fare), color = White.copy(alpha = 0.5f), fontSize = 12.sp)
-                            Text(uiState.approxFare, color = White, fontWeight = FontWeight.Medium)
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(stringResource(R.string.last_payment), color = White.copy(alpha = 0.5f), fontSize = 12.sp)
-                            Text(uiState.lastPayment, color = White.copy(alpha = 0.7f), fontSize = 11.sp)
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(stringResource(R.string.use_points_discount), color = White, fontSize = 14.sp)
-                        Switch(
-                            checked = uiState.usePoints,
-                            onCheckedChange = viewModel::onPointsToggle,
-                            colors = SwitchDefaults.colors(checkedTrackColor = Gold)
-                        )
-                    }
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        stringResource(R.string.available_balance),
+                        color = Gold,
+                        style = MaterialTheme.typography.labelSmall,
+                        letterSpacing = 1.sp
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        uiState.availableBalance,
+                        color = White,
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Black
+                    )
                 }
             }
             

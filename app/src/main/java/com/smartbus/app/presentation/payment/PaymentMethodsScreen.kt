@@ -19,26 +19,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.smartbus.app.domain.model.SavedCard
+import com.smartbus.app.domain.model.defaultSavedCards
+import com.smartbus.app.ui.components.CreditCardView
 import com.smartbus.app.ui.theme.Black
 import com.smartbus.app.ui.theme.Charcoal
 import com.smartbus.app.ui.theme.Gold
 import com.smartbus.app.ui.theme.GoldDark
 import com.smartbus.app.ui.theme.White
 
-private data class SavedCard(
-    val last4: String,
-    val brand: String,
-    val holder: String,
-    val expiry: String,
-    val isDefault: Boolean = false,
-    val gradientStart: Color = Color(0xFF1A1A2E),
-    val gradientEnd: Color = Color(0xFF16213E)
-)
 
-private val savedCards = listOf(
-    SavedCard("4521", "Visa", "SANTIAGO ARBELAEZ", "12/27", true, Color(0xFF0D1B2A), Color(0xFF1B263B)),
-    SavedCard("8834", "Mastercard", "SANTIAGO ARBELAEZ", "08/26", false, Color(0xFF1A0533), Color(0xFF2D0A5B)),
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,8 +79,8 @@ fun PaymentMethodsScreen(onNavigateBack: () -> Unit) {
                 Text("Toca una tarjeta para gestionar", fontSize = 13.sp, color = Color.Gray)
             }
 
-            items(savedCards.size) { i ->
-                CreditCardView(card = savedCards[i])
+            items(defaultSavedCards.size) { i ->
+                CreditCardView(card = defaultSavedCards[i])
             }
 
             item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -140,100 +130,7 @@ fun PaymentMethodsScreen(onNavigateBack: () -> Unit) {
     }
 }
 
-@Composable
-private fun CreditCardView(card: SavedCard) {
-    var expanded by remember { mutableStateOf(false) }
 
-    Column {
-        // The physical card
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(190.dp)
-                .clickable { expanded = !expanded },
-            shape = RoundedCornerShape(20.dp),
-            elevation = CardDefaults.cardElevation(8.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Brush.linearGradient(listOf(card.gradientStart, card.gradientEnd)))
-                    .padding(24.dp)
-            ) {
-                // Default badge
-                if (card.isDefault) {
-                    Surface(
-                        color = Gold.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(6.dp),
-                        modifier = Modifier.align(Alignment.TopEnd)
-                    ) {
-                        Text(
-                            "✓ Predeterminada",
-                            color = Gold,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                        )
-                    }
-                }
-
-                Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-                    // Brand
-                    Text(card.brand, color = Gold, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, letterSpacing = 1.sp)
-
-                    // Card number
-                    Text(
-                        "•••• •••• •••• ${card.last4}",
-                        color = White,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 3.sp
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column {
-                            Text("TITULAR", color = White.copy(alpha = 0.5f), fontSize = 9.sp, letterSpacing = 1.sp)
-                            Text(card.holder, color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text("VENCE", color = White.copy(alpha = 0.5f), fontSize = 9.sp, letterSpacing = 1.sp)
-                            Text(card.expiry, color = White, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
-                }
-            }
-        }
-
-        // Actions when expanded
-        AnimatedVisibility(visible = expanded) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = White),
-                elevation = CardDefaults.cardElevation(2.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    TextButton(onClick = {}) {
-                        Icon(Icons.Default.Star, null, tint = Gold, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Predeterminar", color = Gold, fontSize = 12.sp)
-                    }
-                    TextButton(onClick = {}) {
-                        Icon(Icons.Default.Delete, null, tint = Color(0xFFE53935), modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Eliminar", color = Color(0xFFE53935), fontSize = 12.sp)
-                    }
-                }
-            }
-        }
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

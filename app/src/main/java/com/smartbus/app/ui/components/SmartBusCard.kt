@@ -17,6 +17,7 @@ import com.smartbus.app.ui.theme.SurfaceCard
 fun SmartBusCard(
     modifier: Modifier = Modifier,
     showBorder: Boolean = true,
+    containerColor: androidx.compose.ui.graphics.Color = SurfaceCard,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
@@ -26,7 +27,7 @@ fun SmartBusCard(
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = SurfaceCard
+                containerColor = containerColor
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 4.dp
@@ -42,7 +43,7 @@ fun SmartBusCard(
             modifier = modifier,
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = SurfaceCard
+                containerColor = containerColor
             ),
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 4.dp

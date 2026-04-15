@@ -19,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.graphicsLayer
+import android.view.animation.OvershootInterpolator
 import com.smartbus.app.R
 import com.smartbus.app.ui.components.GoogleSignInButton
 import com.smartbus.app.ui.theme.Black
@@ -32,6 +34,30 @@ fun WelcomeScreen(
 ) {
     var startAnimations by remember { mutableStateOf(false) }
     
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    
+    // Background glow pulse animation
+    val pulseAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.03f,
+        targetValue = 0.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2500, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "pulse_alpha"
+    )
+    
+    // Floating logo animation
+    val logoTranslationY by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 12f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(3000, easing = LinearOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "logo_float"
+    )
+
     LaunchedEffect(Unit) {
         startAnimations = true
     }
@@ -49,16 +75,7 @@ fun WelcomeScreen(
                 )
             )
     ) {
-        // Decorative background glow - moved higher and subtle
-        Surface(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .offset(y = (-90).dp)
-                .size(380.dp),
-            color = Gold.copy(alpha = 0.04f),
-            shape = CircleShape,
-            border = null
-        ) {}
+
 
         Column(
             modifier = Modifier
@@ -71,16 +88,22 @@ fun WelcomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(top = 10.dp) // Pushes everything up
             ) {
-                // Logo & Title Section - Entry from top
+                // Logo & Title Section - Entry from top with scaling
                 AnimatedVisibility(
                     visible = startAnimations,
-                    enter = fadeIn(tween(800)) + slideInVertically(tween(800)) { -80 }
+                    enter = fadeIn(tween(1000)) + 
+                            slideInVertically(tween(1000)) { -100 } +
+                            scaleIn(tween(1000, easing = Easing { OvershootInterpolator(1.2f).getInterpolation(it) }))
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Image(
                             painter = painterResource(id = R.raw.smartbus),
                             contentDescription = null,
-                            modifier = Modifier.size(190.dp)
+                            modifier = Modifier
+                                .size(190.dp)
+                                .graphicsLayer {
+                                    translationY = logoTranslationY
+                                }
                         )
                         
                         Spacer(modifier = Modifier.height(8.dp))

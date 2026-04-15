@@ -36,6 +36,11 @@ fun SmartBusButton(
             disabledContentColor = if (isSecondary) Black.copy(alpha = 0.5f) else Gold.copy(alpha = 0.5f)
         )
     ) {
-        Text(text = text)
+        Text(
+            text = text,
+            color = if (isSecondary) Black else Gold,
+            style = androidx.compose.material3.MaterialTheme.typography.labelLarge,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+        )
     }
 }

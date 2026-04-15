@@ -13,4 +13,5 @@ class PaymentViewModel : ViewModel() {
     fun onCardNameChange(value: String) { _uiState.value = _uiState.value.copy(cardName = value) }
     fun onExpiryChange(value: String) { _uiState.value = _uiState.value.copy(expiry = value) }
     fun onCvcChange(value: String) { _uiState.value = _uiState.value.copy(cvc = value) }
+    fun onCardSelect(index: Int) { _uiState.value = _uiState.value.copy(selectedCardIndex = index) }
 }

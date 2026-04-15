@@ -30,12 +30,9 @@ import com.smartbus.app.R
 import com.smartbus.app.core.AppLanguage
 import com.smartbus.app.core.LanguageManager
 import com.smartbus.app.ui.components.LanguageSelectorBottomSheet
-import com.smartbus.app.ui.theme.Black
-import com.smartbus.app.ui.theme.Charcoal
-import com.smartbus.app.ui.theme.ErrorRed
-import com.smartbus.app.ui.theme.Gold
-import com.smartbus.app.ui.theme.GoldDark
-import com.smartbus.app.ui.theme.White
+import com.smartbus.app.ui.theme.*
+import com.smartbus.app.core.AppTheme
+import com.smartbus.app.core.ThemeManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,9 +50,14 @@ fun ProfileScreen(
     val isEn = currentLang == AppLanguage.ENGLISH
 
     var showLanguageSheet by remember { mutableStateOf(false) }
+    var showThemeSheet by remember { mutableStateOf(false) }
+    val currentTheme by ThemeManager.currentTheme.collectAsState()
 
     if (showLanguageSheet) {
         LanguageSelectorBottomSheet(onDismiss = { showLanguageSheet = false })
+    }
+    if (showThemeSheet) {
+        ThemeSelectorBottomSheet(onDismiss = { showThemeSheet = false })
     }
 
     Scaffold(
@@ -228,6 +230,14 @@ fun ProfileScreen(
                             title = if (isEn) "Language" else "Idioma",
                             subtitle = currentLang.displayName,
                             onClick = { showLanguageSheet = true }
+                        )
+                        ProfileDivider()
+                        ProfileMenuRow(
+                            icon = if (currentTheme == AppTheme.DARK) Icons.Default.DarkMode else Icons.Default.LightMode,
+                            iconBg = if (currentTheme == AppTheme.DARK) Color(0xFF4527A0) else Color(0xFFFFB300),
+                            title = if (isEn) "Appearance" else "Apariencia",
+                            subtitle = if (isEn) currentTheme.displayNameEn else currentTheme.displayName,
+                            onClick = { showThemeSheet = true }
                         )
                         ProfileDivider()
                         ProfileMenuRow(
@@ -487,6 +497,71 @@ private fun ProfileStatCard(
             Spacer(modifier = Modifier.height(8.dp))
             Text(value, fontWeight = FontWeight.Black, fontSize = 18.sp, color = Color(0xFF1A1A1A))
             Text(label, fontSize = 11.sp, color = Color(0xFF9E9E9E), fontWeight = FontWeight.Medium)
+        }
+    }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ThemeSelectorBottomSheet(onDismiss: () -> Unit) {
+    val currentTheme by ThemeManager.currentTheme.collectAsState()
+    val currentLang by LanguageManager.currentLanguage.collectAsState()
+    val isEn = currentLang == AppLanguage.ENGLISH
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Gold.copy(alpha = 0.3f)) }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 32.dp)
+        ) {
+            Text(
+                if (isEn) "Select Theme" else "Seleccionar Tema",
+                modifier = Modifier.padding(20.dp),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
+
+            AppTheme.values().forEach { theme ->
+                val isSelected = theme == currentTheme
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            ThemeManager.setTheme(theme)
+                            onDismiss()
+                        }
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            shape = CircleShape,
+                            color = if (isSelected) Gold.copy(alpha = 0.15f) else Color.Transparent,
+                            modifier = Modifier.size(42.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(theme.emoji, fontSize = 20.sp)
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            if (isEn) theme.displayNameEn else theme.displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                        )
+                    }
+                    if (isSelected) {
+                        RadioButton(selected = true, onClick = null, colors = RadioButtonDefaults.colors(selectedColor = Gold))
+                    }
+                }
+            }
         }
     }
 }

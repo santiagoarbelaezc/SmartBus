@@ -2,12 +2,21 @@ package com.smartbus.app.presentation.search
 
 enum class RouteType { INTERCITY, URBAN }
 
+enum class SearchFilter(val label: String) {
+    ALL("Todos"),
+    CHEAPEST("Más Económico"),
+    FASTEST("Más Rápido"),
+    DIRECT("Solo Directo"),
+    NIGHT("Nocturno")
+}
+
 data class SearchUiState(
     val origin: String = "",
     val destination: String = "",
     val selectedTab: RouteType = RouteType.INTERCITY,
     val intercityRoutes: List<IntercityRoute> = defaultIntercityRoutes,
-    val urbanRoutes: List<UrbanRoute> = defaultUrbanRoutes
+    val urbanRoutes: List<UrbanRoute> = defaultUrbanRoutes,
+    val selectedFilter: SearchFilter = SearchFilter.ALL
 )
 
 data class IntercityRoute(
@@ -162,7 +171,7 @@ val defaultUrbanRoutes = listOf(
         logoRes        = com.smartbus.app.R.raw.logotinto,
         farePrice      = "\$2.900",
         frequency      = "Cada 8 min",
-        operatingHours = "5:00 AM – 11:00 PM",
+        operatingHours = "5:30 AM – 10:00 PM",
         color          = 0xFFE53935
     ),
     UrbanRoute(
@@ -184,7 +193,7 @@ val defaultUrbanRoutes = listOf(
         logoRes        = com.smartbus.app.R.raw.logotinto,
         farePrice      = "\$2.900",
         frequency      = "Cada 10 min",
-        operatingHours = "5:30 AM – 10:30 PM",
+        operatingHours = "5:30 AM – 10:00 PM",
         color          = 0xFF2E7D32
     ),
     UrbanRoute(
@@ -195,7 +204,7 @@ val defaultUrbanRoutes = listOf(
         logoRes        = com.smartbus.app.R.raw.logotinto,
         farePrice      = "\$2.900",
         frequency      = "Cada 12 min",
-        operatingHours = "5:00 AM – 10:30 PM",
+        operatingHours = "5:30 AM – 10:00 PM",
         color          = 0xFF6A1B9A
     ),
     UrbanRoute(
@@ -206,7 +215,7 @@ val defaultUrbanRoutes = listOf(
         logoRes        = com.smartbus.app.R.raw.logotinto,
         farePrice      = "\$2.900",
         frequency      = "Cada 10 min",
-        operatingHours = "5:15 AM – 10:45 PM",
+        operatingHours = "5:30 AM – 10:00 PM",
         color          = 0xFFEF6C00
     ),
     UrbanRoute(
@@ -228,7 +237,7 @@ val defaultUrbanRoutes = listOf(
         logoRes        = com.smartbus.app.R.raw.logotinto,
         farePrice      = "\$2.900",
         frequency      = "Cada 8 min",
-        operatingHours = "5:00 AM – 11:00 PM",
+        operatingHours = "5:30 AM – 10:00 PM",
         color          = 0xFFFF8F00
     )
 )

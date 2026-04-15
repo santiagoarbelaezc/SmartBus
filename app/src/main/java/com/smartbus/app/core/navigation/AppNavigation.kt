@@ -56,6 +56,7 @@ import com.smartbus.app.presentation.travelcredit.TravelCreditScreen
 import com.smartbus.app.presentation.travelcredit.TravelCreditViewModel
 import com.smartbus.app.presentation.notifications.NotificationsScreen
 import com.smartbus.app.presentation.payment.PaymentMethodsScreen
+import com.smartbus.app.presentation.payment.PaymentSuccessScreen
 import com.smartbus.app.presentation.help.HelpSupportScreen
 import com.smartbus.app.presentation.terms.TermsScreen
 import com.smartbus.app.presentation.welcome.WelcomeScreen
@@ -138,7 +139,7 @@ private fun BuildNavHost(navController: NavHostController) {
 
     NavHost(
         navController = navController,
-        startDestination = MainRoutes.Home
+        startDestination = MainRoutes.Welcome
     ) {
         // ── Splash ──────────────────────────────────────────────────
         composable<MainRoutes.Splash> {
@@ -287,12 +288,22 @@ private fun BuildNavHost(navController: NavHostController) {
 
         composable<MainRoutes.Payment> { backStackEntry ->
             PaymentScreen(
-                viewModel = PaymentViewModel(),
+                viewModel = viewModel(),
                 onNavigateBack = { navController.popBackStack() },
                 onTrackBus = { navController.navigate(MainRoutes.Tracking(ticketId = "")) },
                 onPaymentSuccess = {
-                    navController.navigate(MainRoutes.MyTickets) {
+                    navController.navigate(MainRoutes.PaymentSuccess) {
                         popUpTo<MainRoutes.Search> { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        composable<MainRoutes.PaymentSuccess> {
+            PaymentSuccessScreen(
+                onBackToHome = {
+                    navController.navigate(MainRoutes.Home) {
+                        popUpTo<MainRoutes.Welcome> { inclusive = false }
                     }
                 }
             )

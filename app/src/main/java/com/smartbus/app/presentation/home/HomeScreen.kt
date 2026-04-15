@@ -343,7 +343,7 @@ fun HomeScreen(
                                     colors = ButtonDefaults.buttonColors(containerColor = Gold),
                                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                                 ) {
-                                    Text("Seguir en vivo", color = Black, fontWeight = FontWeight.ExtraBold, fontSize = 12.sp)
+                                    Text("Sigue tu bus", color = Black, fontWeight = FontWeight.ExtraBold, fontSize = 12.sp)
                                 }
                             }
                         }
@@ -379,70 +379,75 @@ fun HomeScreen(
                                 .padding(20.dp)
                         ) {
                             Column {
+                                // Top Row: Ticket ID and Tracking
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.Top
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Column {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            Icons.Default.ConfirmationNumber,
+                                            null,
+                                            tint = Gold.copy(alpha = 0.7f),
+                                            modifier = Modifier.size(14.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            "SmartBus #247",
-                                            color = Gold,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
+                                            "TICKET #SB-2047",
+                                            color = Gold.copy(alpha = 0.7f),
+                                            fontSize = 10.sp,
+                                            fontWeight = FontWeight.Bold,
                                             letterSpacing = 1.sp
                                         )
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text(
-                                            "${trip.origin} → ${trip.destination}",
-                                            color = White,
-                                            fontWeight = FontWeight.ExtraBold,
-                                            fontSize = 20.sp
-                                        )
                                     }
+                                    
                                     IconButton(
                                         onClick = onNavigateToTracking,
                                         modifier = Modifier
-                                            .size(40.dp)
+                                            .size(32.dp)
                                             .clip(CircleShape)
                                             .background(Gold.copy(alpha = 0.15f))
                                     ) {
-                                        Icon(Icons.Default.MyLocation, null, tint = Gold, modifier = Modifier.size(20.dp))
+                                        Icon(Icons.Default.MyLocation, null, tint = Gold, modifier = Modifier.size(16.dp))
                                     }
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
-                                HorizontalDivider(color = White.copy(alpha = 0.08f))
-                                Spacer(modifier = Modifier.height(14.dp))
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                // Main Route
+                                Text(
+                                    "${trip.origin} → ${trip.destination}",
+                                    color = White,
+                                    fontWeight = FontWeight.Black,
+                                    style = MaterialTheme.typography.headlineSmall
+                                )
+
+                                Spacer(modifier = Modifier.height(20.dp))
+                                
+                                // Collective info row (Date, Time)
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     TripDetailPill(Icons.Default.CalendarToday, trip.date)
                                     TripDetailPill(Icons.Default.AccessTime, trip.time)
-                                    Surface(
-                                        color = Color(0xFF1B5E20).copy(alpha = 0.35f),
-                                        shape = RoundedCornerShape(8.dp)
-                                    ) {
-                                        Text(
-                                            "✓ Confirmado",
-                                            color = Color(0xFF81C784),
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                                        )
-                                    }
                                 }
-                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Spacer(modifier = Modifier.height(20.dp))
+
                                 Button(
                                     onClick = { showRouteDialog = true },
-                                    modifier = Modifier.fillMaxWidth().height(42.dp),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = Gold.copy(alpha = 0.15f)),
-                                    border = BorderStroke(1.dp, Gold.copy(alpha = 0.3f))
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Black),
+                                    border = BorderStroke(1.dp, Gold.copy(alpha = 0.3f)),
+                                    contentPadding = PaddingValues(12.dp)
                                 ) {
-                                    Icon(Icons.Default.Map, null, tint = Gold, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Text("Ver Mapa de Ruta", color = Gold, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                                    Icon(Icons.Default.Map, null, tint = Gold, modifier = Modifier.size(18.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text("VER MAPA DE RUTA", color = Gold, fontSize = 12.sp, fontWeight = FontWeight.Black, letterSpacing = 1.sp)
                                 }
                             }
                         }
