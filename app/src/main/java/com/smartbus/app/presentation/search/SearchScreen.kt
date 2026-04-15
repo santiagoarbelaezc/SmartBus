@@ -1,27 +1,38 @@
 package com.smartbus.app.presentation.search
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
-import com.smartbus.app.ui.components.*
+import com.smartbus.app.ui.components.SmartBusLoadingOverlay
 import com.smartbus.app.ui.theme.Black
+import com.smartbus.app.ui.theme.Charcoal
 import com.smartbus.app.ui.theme.Gold
+import com.smartbus.app.ui.theme.GoldDark
 import com.smartbus.app.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,140 +48,270 @@ fun SearchScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Buscar Viaje", color = Gold, fontWeight = FontWeight.Bold) },
+                title = {
+                    Column {
+                        Text("Buscar Viaje", color = White, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+                        Text("Armenia • Quindío", color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Medium)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null, tint = White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null, tint = White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Black)
             )
         },
-        containerColor = Color(0xFFF8F9FA)
+        containerColor = Color(0xFFF5F6F8)
     ) { innerPadding ->
+
         Box(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                contentPadding = PaddingValues(bottom = 32.dp)
+                contentPadding = PaddingValues(bottom = 40.dp)
             ) {
-                // Search Header with Card
+
+                // ── Search header card ─────────────────────────────────
                 item {
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Box(modifier = Modifier.fillMaxWidth().height(80.dp).background(Black))
-                        
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Black)
+                            .padding(horizontal = 20.dp)
+                            .padding(top = 8.dp, bottom = 28.dp)
+                    ) {
                         Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 20.dp)
-                                .padding(top = 10.dp),
                             shape = RoundedCornerShape(24.dp),
                             colors = CardDefaults.cardColors(containerColor = White),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
+                            elevation = CardDefaults.cardElevation(12.dp)
                         ) {
                             Column(modifier = Modifier.padding(20.dp)) {
-                                // Origin & Destination UI
-                                SearchInputField(
+
+                                // Origin field
+                                SearchInputRow(
                                     value = uiState.origin,
                                     onValueChange = viewModel::onOriginChange,
-                                    label = "Origen",
+                                    placeholder = "Origen",
                                     icon = Icons.Default.TripOrigin,
                                     iconColor = Gold
                                 )
-                                
-                                Box(modifier = Modifier.fillMaxWidth().height(40.dp), contentAlignment = Alignment.CenterStart) {
-                                    VerticalDivider(modifier = Modifier.padding(start = 22.dp).height(40.dp), color = Gold.copy(alpha = 0.2f))
-                                    IconButton(
-                                        onClick = { /* Swap */ },
-                                        modifier = Modifier.padding(start = 8.dp).size(32.dp).background(White, RoundedCornerShape(8.dp))
+
+                                // Swap + divider
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(36.dp),
+                                    contentAlignment = Alignment.CenterStart
+                                ) {
+                                    VerticalDivider(
+                                        modifier = Modifier
+                                            .padding(start = 23.dp)
+                                            .height(36.dp),
+                                        color = Color(0xFFE0E0E0)
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(start = 8.dp)
+                                            .size(30.dp)
+                                            .clip(CircleShape)
+                                            .background(Gold)
+                                            .clickable {
+                                                val tmp = uiState.origin
+                                                viewModel.onOriginChange(uiState.destination)
+                                                viewModel.onDestinationChange(tmp)
+                                            },
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Icon(Icons.Default.SwapVert, contentDescription = null, tint = Gold, modifier = Modifier.size(20.dp))
+                                        Icon(
+                                            Icons.Default.SwapVert,
+                                            null,
+                                            tint = Black,
+                                            modifier = Modifier.size(18.dp)
+                                        )
                                     }
                                 }
 
-                                SearchInputField(
+                                // Destination field
+                                SearchInputRow(
                                     value = uiState.destination,
                                     onValueChange = viewModel::onDestinationChange,
-                                    label = "Destino",
+                                    placeholder = "Destino",
                                     icon = Icons.Default.LocationOn,
-                                    iconColor = Black
+                                    iconColor = Color(0xFFE53935)
                                 )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+                                HorizontalDivider(color = Color(0xFFF0F0F0))
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Badges row
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    InfoBadge(
+                                        icon = Icons.Default.CalendarToday,
+                                        text = "Hoy",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    InfoBadge(
+                                        icon = Icons.Default.Group,
+                                        text = "1 Persona",
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    InfoBadge(
+                                        icon = Icons.Default.AirlineSeatReclineNormal,
+                                        text = "Cualquier clase",
+                                        modifier = Modifier.weight(1.4f)
+                                    )
+                                }
 
                                 Spacer(modifier = Modifier.height(20.dp))
 
-                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    SearchInfoBadge(icon = Icons.Default.CalendarToday, text = "24 Oct", modifier = Modifier.weight(1f))
-                                    SearchInfoBadge(icon = Icons.Default.Group, text = "1 Per.", modifier = Modifier.weight(1f))
+                                // Search button
+                                Button(
+                                    onClick = { isSearching = true },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(52.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = Black)
+                                ) {
+                                    Icon(Icons.Default.Search, null, tint = Gold, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        "Buscar Rutas",
+                                        color = Gold,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 16.sp
+                                    )
                                 }
-
-                                Spacer(modifier = Modifier.height(24.dp))
-
-                                SmartBusButton(
-                                    text = "Buscar Rutas",
-                                    onClick = { 
-                                        isSearching = true
-                                        // Mock delay would happen in VM, but for UI feedback:
-                                    },
-                                    modifier = Modifier.fillMaxWidth().height(52.dp)
-                                )
                             }
                         }
                     }
                 }
 
-                // Results Header
+                // ── Tabs ──────────────────────────────────────────────
                 item {
-                    Spacer(modifier = Modifier.height(28.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "Resultados Disponibles",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = Black
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            color = Gold.copy(alpha = 0.2f),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                uiState.results.size.toString(),
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                                color = Gold,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
-                // Filters
-                item {
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 24.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        item { SearchFilterChip(text = "Económico", selected = true) }
-                        item { SearchFilterChip(text = "Rápido", selected = false) }
-                        item { SearchFilterChip(text = "Mañana", selected = false) }
+                        RouteTab(
+                            label = "🚌 Intermunicipales",
+                            selected = uiState.selectedTab == RouteType.INTERCITY,
+                            onClick = { viewModel.onTabSelected(RouteType.INTERCITY) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        RouteTab(
+                            label = "🔴 Buses Tinto",
+                            selected = uiState.selectedTab == RouteType.URBAN,
+                            onClick = { viewModel.onTabSelected(RouteType.URBAN) },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
 
-                // Results list
-                items(uiState.results) { result ->
-                    Box(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                        TripResultCard(result = result, onClick = onResultSelected)
+                // ── INTERCITY routes ──────────────────────────────────
+                if (uiState.selectedTab == RouteType.INTERCITY) {
+
+                    val routes = viewModel.filteredIntercity()
+                    val grouped = routes.groupBy { it.destination }
+
+                    grouped.forEach { (destination, routeGroup) ->
+                        // Destination header
+                        item(key = "header_$destination") {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(
+                                                Brush.linearGradient(listOf(Gold, GoldDark))
+                                            ),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(Icons.Default.Place, null, tint = Black, modifier = Modifier.size(18.dp))
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            "Armenia → $destination",
+                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 16.sp,
+                                            color = Black
+                                        )
+                                        Text(
+                                            "${routeGroup.first().duration} · desde ${routeGroup.minByOrNull { it.priceFrom }?.priceFrom ?: ""}",
+                                            fontSize = 12.sp,
+                                            color = Color.Gray
+                                        )
+                                    }
+                                }
+                                Surface(
+                                    color = Gold.copy(alpha = 0.15f),
+                                    shape = RoundedCornerShape(8.dp)
+                                ) {
+                                    Text(
+                                        "${routeGroup.size} opciones",
+                                        color = GoldDark,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+
+                        // Route cards for this destination
+                        items(routeGroup, key = { "${it.destination}_${it.departureTime}_${it.companyName}" }) { route ->
+                            IntercityRouteCard(
+                                route = route,
+                                onClick = onResultSelected,
+                                modifier = Modifier.padding(horizontal = 20.dp, vertical = 5.dp)
+                            )
+                        }
+
+                        item(key = "spacer_$destination") {
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+
+                } else {
+                    // ── URBAN (Tinto) routes ──────────────────────────
+
+                    // Bus Tinto hero image
+                    item {
+                        TintoBusHero()
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    val urbanRoutes = viewModel.filteredUrban()
+                    items(urbanRoutes, key = { it.lineNumber }) { route ->
+                        TintoRouteCard(
+                            route = route,
+                            onClick = onResultSelected,
+                            modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+                        )
                     }
                 }
             }
 
-            // High-fidelity Loading Overlay
+            // Loading overlay
             if (isSearching) {
                 SmartBusLoadingOverlay()
                 LaunchedEffect(Unit) {
@@ -182,60 +323,564 @@ fun SearchScreen(
     }
 }
 
+// ── Sub-composables ───────────────────────────────────────────────────────────
+
 @Composable
-fun SearchInputField(value: String, onValueChange: (String) -> Unit, label: String, icon: androidx.compose.ui.graphics.vector.ImageVector, iconColor: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-        Icon(icon, contentDescription = null, tint = iconColor, modifier = Modifier.size(24.dp))
-        Spacer(modifier = Modifier.width(16.dp))
+private fun SearchInputRow(
+    value: String,
+    onValueChange: (String) -> Unit,
+    placeholder: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconColor: Color
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .size(30.dp)
+                .clip(CircleShape)
+                .background(iconColor.copy(alpha = 0.1f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(icon, null, tint = iconColor, modifier = Modifier.size(16.dp))
+        }
+        Spacer(modifier = Modifier.width(12.dp))
         TextField(
             value = value,
             onValueChange = onValueChange,
-            placeholder = { Text(label, fontSize = 16.sp, color = Color.Gray) },
+            placeholder = { Text(placeholder, color = Color(0xFFAAAAAA), fontSize = 15.sp) },
+            singleLine = true,
             colors = TextFieldDefaults.colors(
                 unfocusedContainerColor = Color.Transparent,
-                focusedContainerColor = Color.Transparent,
+                focusedContainerColor   = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
-                focusedIndicatorColor = Color.Transparent
+                focusedIndicatorColor   = Color.Transparent
             ),
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
+            textStyle = LocalTextStyle.current.copy(
+                fontSize   = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color      = Color(0xFF1A1A1A)
+            )
         )
     }
 }
 
 @Composable
-fun SearchInfoBadge(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String, modifier: Modifier = Modifier) {
+private fun InfoBadge(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    text: String,
+    modifier: Modifier = Modifier
+) {
     Surface(
         modifier = modifier,
-        color = Color.LightGray.copy(alpha = 0.1f),
-        shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.2f))
+        color = Color(0xFFF5F5F5),
+        shape = RoundedCornerShape(10.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFEEEEEE))
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 10.dp, horizontal = 12.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            Icon(icon, contentDescription = null, tint = Gold, modifier = Modifier.size(16.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+            Icon(icon, null, tint = Gold, modifier = Modifier.size(14.dp))
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(
+                text,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF555555),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
         }
     }
 }
 
 @Composable
-fun SearchFilterChip(text: String, selected: Boolean) {
-    Surface(
-        color = if (selected) Black else White,
-        shape = RoundedCornerShape(12.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) Black else Color.LightGray.copy(alpha = 0.4f)),
-        onClick = {}
+private fun RouteTab(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val bg by animateColorAsState(
+        targetValue = if (selected) Black else White,
+        animationSpec = tween(200),
+        label = "tab_bg"
+    )
+    val textColor by animateColorAsState(
+        targetValue = if (selected) Gold else Color(0xFF888888),
+        animationSpec = tween(200),
+        label = "tab_text"
+    )
+
+    Card(
+        modifier = modifier
+            .height(46.dp)
+            .clickable { onClick() },
+        shape = RoundedCornerShape(14.dp),
+        colors = CardDefaults.cardColors(containerColor = bg),
+        elevation = CardDefaults.cardElevation(if (selected) 4.dp else 1.dp)
     ) {
-        Text(
-            text = text,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-            color = if (selected) Gold else Color.Gray,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-            fontSize = 13.sp
-        )
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(
+                label,
+                color = textColor,
+                fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Medium,
+                fontSize = 13.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun IntercityRouteCard(
+    route: IntercityRoute,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val occupancyColor = when {
+        route.occupancy >= 0.8f -> Color(0xFFE53935)
+        route.occupancy >= 0.5f -> Color(0xFFFFA726)
+        else                    -> Color(0xFF43A047)
+    }
+    val occupancyLabel = when {
+        route.occupancy >= 0.8f -> "Casi lleno"
+        route.occupancy >= 0.5f -> "Disponible"
+        else                    -> "Amplio"
+    }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            // Top row: company + tag
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // Company logo
+                    val context = LocalContext.current
+                    val bmp = remember(route.companyImageRes) {
+                        android.graphics.BitmapFactory.decodeStream(
+                            context.resources.openRawResource(route.companyImageRes)
+                        )?.asImageBitmap()
+                    }
+                    Surface(
+                        modifier = Modifier.size(38.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        color = White,
+                        shadowElevation = 2.dp,
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F0F0))
+                    ) {
+                        if (bmp != null) {
+                            androidx.compose.foundation.Image(
+                                bitmap = bmp,
+                                contentDescription = route.companyName,
+                                modifier = Modifier.fillMaxSize().padding(4.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        } else {
+                            Icon(Icons.Default.DirectionsBus, null, tint = Gold)
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            route.companyName,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 14.sp,
+                            color = Black
+                        )
+                        Text(
+                            if (route.isDirect) "Directo" else "Con paradas",
+                            fontSize = 11.sp,
+                            color = Color.Gray
+                        )
+                    }
+                }
+
+                // Tag badge
+                if (route.tag != null) {
+                    Surface(
+                        color = Gold.copy(alpha = 0.13f),
+                        shape = RoundedCornerShape(8.dp),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.3f))
+                    ) {
+                        Text(
+                            route.tag,
+                            color = GoldDark,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            // Timeline row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(horizontalAlignment = Alignment.Start) {
+                    Text(
+                        route.departureTime,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 18.sp,
+                        color = Black
+                    )
+                    Text("Armenia", fontSize = 11.sp, color = Color.Gray)
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f).padding(horizontal = 12.dp)
+                ) {
+                    Text(
+                        route.duration,
+                        fontSize = 11.sp,
+                        color = Gold,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Gold))
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            color = Gold.copy(alpha = 0.4f),
+                            thickness = 1.5.dp
+                        )
+                        Icon(Icons.Default.DirectionsBus, null, tint = Gold, modifier = Modifier.size(16.dp))
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            color = Gold.copy(alpha = 0.4f),
+                            thickness = 1.5.dp
+                        )
+                        Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Gold))
+                    }
+                    Text(
+                        if (route.isDirect) "Sin paradas" else "Con escalas",
+                        fontSize = 10.sp,
+                        color = Color.Gray
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        route.destination,
+                        fontWeight = FontWeight.ExtraBold,
+                        fontSize = 18.sp,
+                        color = Black
+                    )
+                    Text("Llegada", fontSize = 11.sp, color = Color.Gray)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = Color(0xFFF0F0F0))
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Bottom row: seats + occupancy + price
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Seats chip
+                    Surface(
+                        color = occupancyColor.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            "● $occupancyLabel",
+                            color = occupancyColor,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp)
+                        )
+                    }
+                    Text(
+                        "${route.seatsAvailable} asientos",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        route.priceFrom,
+                        color = Gold,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Black
+                    )
+                    Text("desde / persona", fontSize = 10.sp, color = Color.Gray)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TintoBusHero() {
+    val context = LocalContext.current
+    val bmp = remember {
+        android.graphics.BitmapFactory.decodeStream(
+            context.resources.openRawResource(R.raw.bustinto)
+        )?.asImageBitmap()
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp)
+            .height(180.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        elevation = CardDefaults.cardElevation(6.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Bus photo
+            if (bmp != null) {
+                androidx.compose.foundation.Image(
+                    bitmap = bmp,
+                    contentDescription = "Bus Tinto Armenia",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Box(modifier = Modifier.fillMaxSize().background(Color(0xFFE53935)))
+            }
+
+            // Dark overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(Color.Transparent, Black.copy(alpha = 0.85f))
+                        )
+                    )
+            )
+
+            // Content on top
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(18.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Surface(
+                        color = Color(0xFFE53935),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            "🔴 TINTO",
+                            color = White,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 10.sp,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Armenia, Quindío", color = White.copy(alpha = 0.7f), fontSize = 12.sp)
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "Buses Urbanos de Armenia",
+                    color = White,
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 20.sp
+                )
+                Text(
+                    "El transporte con historia de la ciudad",
+                    color = White.copy(alpha = 0.6f),
+                    fontSize = 12.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TintoRouteCard(
+    route: UrbanRoute,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val lineColor = Color(route.color)
+    val context   = LocalContext.current
+    val busBmp    = remember(route.busImageRes) {
+        android.graphics.BitmapFactory.decodeStream(
+            context.resources.openRawResource(route.busImageRes)
+        )?.asImageBitmap()
+    }
+    val logoBmp   = remember(route.logoRes) {
+        android.graphics.BitmapFactory.decodeStream(
+            context.resources.openRawResource(route.logoRes)
+        )?.asImageBitmap()
+    }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column {
+            // Bus photo strip
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+            ) {
+                if (busBmp != null) {
+                    androidx.compose.foundation.Image(
+                        bitmap = busBmp,
+                        contentDescription = route.lineName,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+                // Gradient overlay
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(lineColor.copy(alpha = 0.85f), Color.Transparent)
+                            )
+                        )
+                )
+                // Line number badge
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(White)
+                        .align(Alignment.CenterStart),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        route.lineNumber,
+                        color = lineColor,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 22.sp
+                    )
+                }
+
+                // Logo tinto
+                if (logoBmp != null) {
+                    Surface(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(12.dp)
+                            .size(40.dp),
+                        shape = RoundedCornerShape(10.dp),
+                        color = White,
+                        shadowElevation = 2.dp
+                    ) {
+                        androidx.compose.foundation.Image(
+                            bitmap = logoBmp,
+                            contentDescription = "Tinto",
+                            modifier = Modifier.fillMaxSize().padding(4.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                    }
+                }
+            }
+
+            // Bottom info
+            Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            route.lineName,
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 16.sp,
+                            color = Black
+                        )
+                        Text(
+                            route.description,
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.fillMaxWidth(0.75f)
+                        )
+                    }
+                    Text(
+                        route.farePrice,
+                        color = Gold,
+                        fontWeight = FontWeight.Black,
+                        fontSize = 18.sp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Frequency chip
+                    Surface(
+                        color = lineColor.copy(alpha = 0.1f),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Schedule, null, tint = lineColor, modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(route.frequency, color = lineColor, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    // Hours chip
+                    Surface(
+                        color = Color(0xFFF0F0F0),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.AccessTime, null, tint = Color.Gray, modifier = Modifier.size(13.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(route.operatingHours, color = Color.Gray, fontSize = 11.sp)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

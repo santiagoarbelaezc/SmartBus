@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -211,17 +212,91 @@ fun TicketItemFixed(ticket: TicketInfo, onTrack: () -> Unit) {
                         .padding(top = 20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // Instruction label
+                    Text(
+                        "Escanea este código en el lector",
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.ExtraBold,
+                        fontSize = 15.sp,
+                        color = Black
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        "Muéstralo al conductor al abordar el vehículo",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    // QR image from res/raw/qr.jpg
+                    val context = androidx.compose.ui.platform.LocalContext.current
+                    val qrBmp = remember<androidx.compose.ui.graphics.ImageBitmap?> {
+                        android.graphics.BitmapFactory.decodeStream(
+                            context.resources.openRawResource(com.smartbus.app.R.raw.qr)
+                        )?.asImageBitmap()
+                    }
+
                     Box(
                         modifier = Modifier
-                            .size(200.dp)
-                            .background(Color.White)
-                            .border(1.dp, Color.LightGray.copy(alpha = 0.3f), RoundedCornerShape(16.dp)),
+                            .size(220.dp)
+                            .background(White, androidx.compose.foundation.shape.RoundedCornerShape(20.dp))
+                            .border(
+                                2.dp,
+                                Gold.copy(alpha = 0.5f),
+                                androidx.compose.foundation.shape.RoundedCornerShape(20.dp)
+                            )
+                            .padding(16.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.QrCode2, contentDescription = null, tint = Black, modifier = Modifier.size(140.dp))
+                        if (qrBmp != null) {
+                            androidx.compose.foundation.Image(
+                                bitmap = qrBmp,
+                                contentDescription = "Código QR del tiquete",
+                                contentScale = androidx.compose.ui.layout.ContentScale.Fit,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            Icon(
+                                Icons.Default.QrCode2,
+                                contentDescription = null,
+                                tint = Black,
+                                modifier = Modifier.size(160.dp)
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text("Muestra este código al abordar", fontSize = 12.sp, color = Color.Gray)
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Ticket ID
+                    Surface(
+                        color = Black,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(Icons.Default.ConfirmationNumber, null, tint = Gold, modifier = Modifier.size(14.dp))
+                            Text(
+                                "Tiquete #${ticket.id.uppercase()}",
+                                color = White,
+                                fontSize = 12.sp,
+                                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Válido solo para el viaje y fecha indicados",
+                        fontSize = 11.sp,
+                        color = Color.LightGray
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }

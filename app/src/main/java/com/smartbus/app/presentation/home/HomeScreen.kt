@@ -73,7 +73,8 @@ fun HomeScreen(
     onNavigateToTickets: () -> Unit,
     onNavigateToTracking: () -> Unit,
     onNavigateToPoints: () -> Unit,
-    onNavigateToNFC: () -> Unit
+    onNavigateToNFC: () -> Unit,
+    onNavigateToProfile: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currentLang by LanguageManager.currentLanguage.collectAsState()
@@ -116,7 +117,9 @@ fun HomeScreen(
                     Surface(
                         shape = RoundedCornerShape(20.dp),
                         color = Gold.copy(alpha = 0.15f),
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .clickable { onNavigateToProfile() }
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
@@ -127,13 +130,14 @@ fun HomeScreen(
                             Text("Oro", color = Gold, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
-                    // Avatar
+                    // Avatar — tapping navigates to profile
                     Box(
                         modifier = Modifier
                             .padding(end = 16.dp)
                             .size(40.dp)
                             .clip(CircleShape)
                             .background(Gold)
+                            .clickable { onNavigateToProfile() }
                             .padding(2.dp)
                             .clip(CircleShape)
                             .background(White)

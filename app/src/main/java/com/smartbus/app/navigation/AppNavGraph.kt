@@ -12,6 +12,7 @@ import com.smartbus.app.presentation.seatselection.SeatSelectionScreen
 import com.smartbus.app.presentation.seatselection.SeatSelectionViewModel
 import com.smartbus.app.presentation.payment.PaymentScreen
 import com.smartbus.app.presentation.payment.PaymentViewModel
+import com.smartbus.app.presentation.payment.PaymentMethodsScreen
 import com.smartbus.app.presentation.tickets.MyTicketsScreen
 import com.smartbus.app.presentation.tickets.MyTicketsViewModel
 import com.smartbus.app.presentation.tracking.TrackingScreen
@@ -31,6 +32,9 @@ import com.smartbus.app.presentation.auth.register.RegisterScreen
 import com.smartbus.app.presentation.auth.register.RegisterViewModel
 import com.smartbus.app.presentation.nfc.NFCPaymentScreen
 import com.smartbus.app.presentation.nfc.NFCPaymentViewModel
+import com.smartbus.app.presentation.notifications.NotificationsScreen
+import com.smartbus.app.presentation.help.HelpSupportScreen
+import com.smartbus.app.presentation.terms.TermsScreen
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -45,7 +49,7 @@ fun AppNavGraph(
     navController: NavHostController
 ) {
     val registerViewModel: RegisterViewModel = viewModel()
-    
+
     NavHost(
         navController = navController,
         startDestination = Screen.Splash.route
@@ -71,7 +75,7 @@ fun AppNavGraph(
             WelcomeScreen(
                 onNavigateToLogin = { navController.navigate(Screen.Login.route) },
                 onNavigateToRegister = { navController.navigate(Screen.Register.route) },
-                onGoogleSignIn = { 
+                onGoogleSignIn = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
@@ -96,9 +100,7 @@ fun AppNavGraph(
         composable(Screen.Register.route) {
             RegisterScreen(
                 viewModel = registerViewModel,
-                onRegisterSuccess = {
-                    navController.navigate(Screen.RegisterStep2.route)
-                },
+                onRegisterSuccess = { navController.navigate(Screen.RegisterStep2.route) },
                 onNavigateToLogin = {
                     navController.navigate(Screen.Login.route) {
                         popUpTo(Screen.Register.route) { inclusive = true }
@@ -110,9 +112,7 @@ fun AppNavGraph(
         composable(Screen.RegisterStep2.route) {
             RegistrationStep2Screen(
                 viewModel = registerViewModel,
-                onNext = {
-                    navController.navigate(Screen.RegisterStep3.route)
-                },
+                onNext = { navController.navigate(Screen.RegisterStep3.route) },
                 onSkip = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
@@ -124,9 +124,7 @@ fun AppNavGraph(
         composable(Screen.RegisterStep3.route) {
             RegistrationStep3Screen(
                 viewModel = registerViewModel,
-                onFinish = {
-                    navController.navigate(Screen.RegisterLoading.route)
-                },
+                onFinish = { navController.navigate(Screen.RegisterLoading.route) },
                 onSkip = {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
@@ -152,7 +150,8 @@ fun AppNavGraph(
                 onNavigateToTickets = { navController.navigate(Screen.MyTickets.route) },
                 onNavigateToTracking = { navController.navigate(Screen.Tracking.route) },
                 onNavigateToPoints = { navController.navigate(Screen.Points.route) },
-                onNavigateToNFC = { navController.navigate(Screen.NFCPayment.route) }
+                onNavigateToNFC = { navController.navigate(Screen.NFCPayment.route) },
+                onNavigateToProfile = { navController.navigate(Screen.Profile.route) }
             )
         }
 
@@ -177,7 +176,7 @@ fun AppNavGraph(
                 viewModel = PaymentViewModel(),
                 onNavigateBack = { navController.popBackStack() },
                 onTrackBus = { navController.navigate(Screen.Tracking.route) },
-                onPaymentSuccess = { 
+                onPaymentSuccess = {
                     navController.navigate(Screen.MyTickets.route) {
                         popUpTo(Screen.Search.route) { inclusive = true }
                     }
@@ -189,7 +188,7 @@ fun AppNavGraph(
             MyTicketsScreen(
                 viewModel = MyTicketsViewModel(),
                 onNavigateBack = { navController.popBackStack() },
-                onTrackBus = { p -> navController.navigate(Screen.Tracking.route) }
+                onTrackBus = { navController.navigate(Screen.Tracking.route) }
             )
         }
 
@@ -229,8 +228,29 @@ fun AppNavGraph(
                     navController.navigate(Screen.Welcome.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
-                }
+                },
+                onNavigateToTravelCredit    = { navController.navigate(Screen.TravelCredit.route) },
+                onNavigateToPaymentMethods  = { navController.navigate(Screen.PaymentMethods.route) },
+                onNavigateToNotifications   = { navController.navigate(Screen.Notifications.route) },
+                onNavigateToHelp            = { navController.navigate(Screen.HelpSupport.route) },
+                onNavigateToTerms           = { navController.navigate(Screen.Terms.route) }
             )
+        }
+
+        composable(Screen.Notifications.route) {
+            NotificationsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.PaymentMethods.route) {
+            PaymentMethodsScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.HelpSupport.route) {
+            HelpSupportScreen(onNavigateBack = { navController.popBackStack() })
+        }
+
+        composable(Screen.Terms.route) {
+            TermsScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

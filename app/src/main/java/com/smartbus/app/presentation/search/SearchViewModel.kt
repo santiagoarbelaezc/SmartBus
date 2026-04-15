@@ -16,4 +16,24 @@ class SearchViewModel : ViewModel() {
     fun onDestinationChange(value: String) {
         _uiState.value = _uiState.value.copy(destination = value)
     }
+
+    fun onTabSelected(tab: RouteType) {
+        _uiState.value = _uiState.value.copy(selectedTab = tab)
+    }
+
+    fun filteredIntercity(): List<IntercityRoute> {
+        val dest = _uiState.value.destination.trim().lowercase()
+        return if (dest.isBlank()) defaultIntercityRoutes
+        else defaultIntercityRoutes.filter { it.destination.lowercase().contains(dest) }
+    }
+
+    fun filteredUrban(): List<UrbanRoute> {
+        val q = _uiState.value.destination.trim().lowercase()
+        return if (q.isBlank()) defaultUrbanRoutes
+        else defaultUrbanRoutes.filter {
+            it.lineNumber.lowercase().contains(q) ||
+            it.lineName.lowercase().contains(q) ||
+            it.description.lowercase().contains(q)
+        }
+    }
 }

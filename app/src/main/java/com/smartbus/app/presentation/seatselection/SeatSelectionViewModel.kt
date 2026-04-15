@@ -11,21 +11,19 @@ class SeatSelectionViewModel : ViewModel() {
     val uiState: StateFlow<SeatSelectionUiState> = _uiState.asStateFlow()
 
     fun onSeatClick(seatId: Int) {
-        val currentSeats = _uiState.value.seats
-        val newSeats = currentSeats.map {
-            if (it.id == seatId) {
-                if (it.status == SeatStatus.SELECTED) it.copy(status = SeatStatus.AVAILABLE)
-                else it.copy(status = SeatStatus.SELECTED)
-            } else if (it.status == SeatStatus.SELECTED) {
-                it.copy(status = SeatStatus.AVAILABLE)
-            } else it
+        val current = _uiState.value
+        val newSeats = current.seats.map {
+            when {
+                it.id == seatId && it.status == SeatStatus.SELECTED ->
+                    it.copy(status = SeatStatus.AVAILABLE)
+                it.id == seatId ->
+                    it.copy(status = SeatStatus.SELECTED)
+                it.status == SeatStatus.SELECTED ->
+                    it.copy(status = SeatStatus.AVAILABLE)
+                else -> it
+            }
         }
-        
-        val selectedId = if (_uiState.value.selectedSeatId == seatId) null else seatId
-        
-        _uiState.value = _uiState.value.copy(
-            seats = newSeats,
-            selectedSeatId = selectedId
-        )
+        val selectedId = if (current.selectedSeatId == seatId) null else seatId
+        _uiState.value = current.copy(seats = newSeats, selectedSeatId = selectedId)
     }
 }
