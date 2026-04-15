@@ -55,21 +55,12 @@ fun RegisterScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 5.dp)
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
                         painter = painterResource(id = R.raw.smartbus),
                         contentDescription = null,
-                        modifier = Modifier.size(110.dp)
-                    )
-                    Text(
-                        text = "Crea tu Cuenta",
-                        color = Gold,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.sp,
-                        modifier = Modifier.offset(y = (-8).dp)
+                        modifier = Modifier.size(160.dp)
                     )
                 }
             }
@@ -91,6 +82,14 @@ fun RegisterScreen(
                     contentPadding = PaddingValues(vertical = 24.dp)
                 ) {
                     item {
+                        Text(
+                            "SmartBus",
+                            color = Gold,
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 4.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Información Personal",
                             style = MaterialTheme.typography.titleLarge,

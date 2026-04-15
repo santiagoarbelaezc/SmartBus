@@ -32,7 +32,8 @@ import com.smartbus.app.ui.theme.Gold
 fun LoginScreen(
     viewModel: LoginViewModel,
     onLoginSuccess: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onNavigateToForgotPassword: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -53,24 +54,16 @@ fun LoginScreen(
                     .fillMaxWidth()
                     .fillMaxHeight(0.38f)
                     .background(Black),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.TopCenter
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(bottom = 10.dp)
+                    modifier = Modifier.padding(top = 32.dp)
                 ) {
                     Image(
                         painter = painterResource(id = R.raw.smartbus),
                         contentDescription = null,
-                        modifier = Modifier.size(170.dp)
-                    )
-                    Text(
-                        "SmartBus",
-                        color = Gold,
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 4.sp,
-                        modifier = Modifier.offset(y = (-15).dp)
+                        modifier = Modifier.size(220.dp)
                     )
                 }
             }
@@ -87,12 +80,20 @@ fun LoginScreen(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 32.dp, vertical = 24.dp)
+                        .padding(start = 32.dp, top = 32.dp, end = 32.dp, bottom = 24.dp)
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            "SmartBus",
+                            color = Gold,
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 4.sp
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Bienvenido",
                             style = MaterialTheme.typography.headlineSmall,
@@ -131,7 +132,7 @@ fun LoginScreen(
                         )
                         
                         TextButton(
-                            onClick = { /* Handle forgot password */ },
+                            onClick = onNavigateToForgotPassword,
                             modifier = Modifier.align(Alignment.End),
                             contentPadding = PaddingValues(0.dp)
                         ) {

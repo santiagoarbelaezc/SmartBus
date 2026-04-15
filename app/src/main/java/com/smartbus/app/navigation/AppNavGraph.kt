@@ -151,7 +151,8 @@ fun AppNavGraph(
                 onNavigateToSearch = { navController.navigate(Screen.Search.route) },
                 onNavigateToTickets = { navController.navigate(Screen.MyTickets.route) },
                 onNavigateToTracking = { navController.navigate(Screen.Tracking.route) },
-                onNavigateToPoints = { navController.navigate(Screen.Points.route) }
+                onNavigateToPoints = { navController.navigate(Screen.Points.route) },
+                onNavigateToNFC = { navController.navigate(Screen.NFCPayment.route) }
             )
         }
 

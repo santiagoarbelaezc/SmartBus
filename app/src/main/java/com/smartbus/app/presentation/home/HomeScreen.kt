@@ -1,56 +1,133 @@
 package com.smartbus.app.presentation.home
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
+import com.smartbus.app.core.AppLanguage
+import com.smartbus.app.core.LanguageManager
 import com.smartbus.app.ui.components.SmartBusCard
 import com.smartbus.app.ui.theme.Black
+import com.smartbus.app.ui.theme.Charcoal
 import com.smartbus.app.ui.theme.Gold
-import com.smartbus.app.ui.theme.TextPrimary
+import com.smartbus.app.ui.theme.GoldDark
 import com.smartbus.app.ui.theme.White
+import java.util.Calendar
 
-@OptIn(ExperimentalMaterial3Api::class)
+// ── Static feed data ──────────────────────────────────────────────────────────
+
+private data class TipItem(val emoji: String, val title: String, val body: String, val tag: String)
+private data class StatItem(val icon: ImageVector, val value: String, val label: String)
+
+private val busTips = listOf(
+    TipItem("🕐", "Llega 10 min antes", "Los buses salen puntual. Planea con tiempo y evita perder tu tiquete.", "Consejo"),
+    TipItem("📱", "Muestra tu QR", "Asegúrate de tener el QR descargado; algunas terminales no tienen señal.", "Recordatorio"),
+    TipItem("💺", "Asientos delanteros", "Los primeros asientos son más estables y se bajan más rápido.", "Tip"),
+    TipItem("🎒", "Equipaje de mano", "Máx. 10 kg en bodega gratis. Excesos se cobran en taquilla.", "Info"),
+    TipItem("❄️", "Viajes nocturnos", "Lleva una chaqueta ligera; el A/C en viajes nocturnos puede ser intenso.", "Consejo"),
+    TipItem("🔋", "Carga tu celular", "Muchos buses Premier tienen USB en cada asiento. ¡Aprovéchalo!", "Tip"),
+)
+
+private val statsRow = listOf(
+    StatItem(Icons.Default.DirectionsBus, "1,240+", "Rutas activas"),
+    StatItem(Icons.Default.People,        "320K+",  "Viajeros / mes"),
+    StatItem(Icons.Default.Star,          "4.8",    "Calificación"),
+    StatItem(Icons.Default.Shield,        "99.2%",  "Puntualidad"),
+)
+
+// ── Screen ────────────────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
     onNavigateToSearch: () -> Unit,
     onNavigateToTickets: () -> Unit,
     onNavigateToTracking: () -> Unit,
-    onNavigateToPoints: () -> Unit
+    onNavigateToPoints: () -> Unit,
+    onNavigateToNFC: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val currentLang by LanguageManager.currentLanguage.collectAsState()
+    val isEn = currentLang == AppLanguage.ENGLISH
+    val filteredRoutes = viewModel.filteredRoutes()
+
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    val greeting = when {
+        hour < 12 -> if (isEn) "Good morning ☀️" else "Buenos días ☀️"
+        hour < 18 -> if (isEn) "Good afternoon 🌤️" else "Buenas tardes 🌤️"
+        else      -> if (isEn) "Good evening 🌙" else "Buenas noches 🌙"
+    }
 
     Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavigateToNFC,
+                containerColor = Black,
+                contentColor = Gold,
+                shape = CircleShape,
+                elevation = FloatingActionButtonDefaults.elevation(8.dp)
+            ) {
+                Icon(Icons.Default.Nfc, contentDescription = "Pago NFC", modifier = Modifier.size(28.dp))
+            }
+        },
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        stringResource(R.string.greeting_hola, uiState.userName),
-                        style = MaterialTheme.typography.headlineMedium
-                    )
+                    Column {
+                        Text(greeting, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+                        Text(
+                            uiState.userName,
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 },
                 actions = {
+                    // Gold level badge
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = Gold.copy(alpha = 0.15f),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.Stars, contentDescription = null, tint = Gold, modifier = Modifier.size(14.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text("Oro", color = Gold, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                    // Avatar
                     Box(
                         modifier = Modifier
                             .padding(end = 16.dp)
@@ -73,154 +150,695 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
-                .padding(horizontal = 24.dp)
+                .fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 120.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Next Trip Card
-            Text(
-                stringResource(R.string.next_trip),
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            uiState.nextTrip?.let { trip ->
-                SmartBusCard(modifier = Modifier.fillMaxWidth()) {
+
+            // ── 1. Search bar ─────────────────────────────────────────
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp)
+                        .clickable { onNavigateToSearch() },
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = Black),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Gold.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(Icons.Default.Search, null, tint = Gold, modifier = Modifier.size(20.dp))
+                            }
+                            Spacer(modifier = Modifier.width(14.dp))
+                            Column {
+                                Text(
+                                    if (isEn) "Where are you going?" else "¿A dónde vas hoy?",
+                                    color = White,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 15.sp
+                                )
+                                Text(
+                                    if (isEn) "Tap to search routes" else "Toca para buscar rutas",
+                                    color = White.copy(alpha = 0.45f),
+                                    fontSize = 12.sp
+                                )
+                            }
+                        }
+                        Icon(Icons.Default.ArrowForwardIos, null, tint = Gold, modifier = Modifier.size(15.dp))
+                    }
+                }
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            // ── 2. Quick Access ───────────────────────────────────────
+            item {
+                val menuItems = listOf(
+                    Triple(Icons.Default.Search,              if (isEn) "Search"   else "Buscar",   onNavigateToSearch),
+                    Triple(Icons.Default.ConfirmationNumber,  if (isEn) "Tickets"  else "Tiquetes", onNavigateToTickets),
+                    Triple(Icons.Default.MyLocation,          if (isEn) "Tracking" else "Rastreo",  onNavigateToTracking),
+                    Triple(Icons.Default.CardGiftcard,        if (isEn) "Points"   else "Puntos",   onNavigateToPoints)
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    menuItems.forEach { (icon, label, action) ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(14.dp))
+                                .clickable { action() }
+                                .padding(8.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .background(
+                                        Brush.verticalGradient(
+                                            listOf(Charcoal, Black)
+                                        )
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(icon, null, tint = Gold, modifier = Modifier.size(26.dp))
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                "${trip.origin} → ${trip.destination}",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                "${trip.date} • ${trip.time}",
-                                style = MaterialTheme.typography.bodyLarge
+                                label,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                color = Black
                             )
                         }
-                        Icon(
-                            Icons.Default.ChevronRight,
-                            contentDescription = null,
-                            tint = Gold
+                    }
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+
+            // ── 3. Next trip ──────────────────────────────────────────
+            item {
+                SectionHeader(
+                    title = if (isEn) "Next Trip" else "Próximo Viaje",
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                if (uiState.nextTrip != null) {
+                    val trip = uiState.nextTrip!!
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.4f))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    Brush.linearGradient(listOf(Black, Charcoal, Black))
+                                )
+                                .padding(20.dp)
+                        ) {
+                            Column {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    Column {
+                                        Text(
+                                            "SmartBus #247",
+                                            color = Gold,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            letterSpacing = 1.sp
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            "${trip.origin} → ${trip.destination}",
+                                            color = White,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 20.sp
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = onNavigateToTracking,
+                                        modifier = Modifier
+                                            .size(40.dp)
+                                            .clip(CircleShape)
+                                            .background(Gold.copy(alpha = 0.15f))
+                                    ) {
+                                        Icon(Icons.Default.MyLocation, null, tint = Gold, modifier = Modifier.size(20.dp))
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                                HorizontalDivider(color = White.copy(alpha = 0.08f))
+                                Spacer(modifier = Modifier.height(14.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    TripDetailPill(Icons.Default.CalendarToday, trip.date)
+                                    TripDetailPill(Icons.Default.AccessTime, trip.time)
+                                    Surface(
+                                        color = Color(0xFF1B5E20).copy(alpha = 0.35f),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(
+                                            "✓ Confirmado",
+                                            color = Color(0xFF81C784),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 20.dp)
+                            .clickable { onNavigateToSearch() },
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8)),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.25f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(Icons.Default.DirectionsBus, null, tint = Gold.copy(alpha = 0.5f), modifier = Modifier.size(36.dp))
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(if (isEn) "No upcoming trips" else "Sin viajes próximos", fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    if (isEn) "Tap to search your next route" else "Toca para buscar tu próxima ruta",
+                                    fontSize = 12.sp, color = Color.Gray
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+
+            // ── 4. Stats banner ───────────────────────────────────────
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.horizontalGradient(listOf(Gold, GoldDark))
+                            )
+                            .padding(vertical = 20.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
+                            statsRow.forEach { stat ->
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Icon(stat.icon, null, tint = Black, modifier = Modifier.size(20.dp))
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(stat.value, color = Black, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+                                    Text(stat.label, color = Black.copy(alpha = 0.65f), fontSize = 10.sp, fontWeight = FontWeight.Medium)
+                                }
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+
+            // ── 5. Promotions carousel ────────────────────────────────
+            item {
+                val pagerState = rememberPagerState { uiState.promotions.size }
+                val promoGradients = listOf(
+                    listOf(Color(0xFF1A0533), Color(0xFF2D0A5B)),
+                    listOf(Color(0xFF0A1628), Color(0xFF0D2137)),
+                    listOf(Color(0xFF1A1208), Color(0xFF2C1F00)),
+                )
+
+                SectionHeader(
+                    title = if (isEn) "Exclusive Offers" else "Ofertas Exclusivas",
+                    actionLabel = "${pagerState.currentPage + 1}/${uiState.promotions.size}",
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                HorizontalPager(
+                    state = pagerState,
+                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    pageSpacing = 12.dp
+                ) { page ->
+                    val promo = uiState.promotions[page]
+                    val gradColors = promoGradients[page % promoGradients.size]
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(130.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.3f))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Brush.linearGradient(gradColors))
+                                .padding(20.dp)
+                        ) {
+                            // Decorative circle
+                            Box(
+                                modifier = Modifier
+                                    .size(90.dp)
+                                    .align(Alignment.BottomEnd)
+                                    .offset(x = 20.dp, y = 20.dp)
+                                    .clip(CircleShape)
+                                    .background(Gold.copy(alpha = 0.08f))
+                            )
+                            Column {
+                                Surface(
+                                    color = Gold.copy(alpha = 0.18f),
+                                    shape = RoundedCornerShape(6.dp)
+                                ) {
+                                    Text(
+                                        "★ OFERTA",
+                                        color = Gold,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        letterSpacing = 1.sp,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(promo.title, fontWeight = FontWeight.ExtraBold, color = White, fontSize = 16.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(promo.description, fontSize = 12.sp, color = White.copy(alpha = 0.7f), maxLines = 2)
+                            }
+                        }
+                    }
+                }
+
+                // Pager dots
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    repeat(uiState.promotions.size) { index ->
+                        val isCurrent = pagerState.currentPage == index
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 3.dp)
+                                .size(if (isCurrent) 20.dp else 6.dp, 6.dp)
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(if (isCurrent) Gold else Gold.copy(alpha = 0.3f))
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+
+            // ── 6. Partner companies ──────────────────────────────────
+            item {
+                SectionHeader(
+                    title = if (isEn) "Partner Companies" else "Empresas Aliadas",
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                val partners = listOf(
+                    R.raw.busbolivariano to "Bolivariano",
+                    R.raw.busflota      to "Flota",
+                    R.raw.busgacela     to "Gacela",
+                    R.raw.smartbus      to "SmartBus"
+                )
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    items(partners) { (imgRes, name) ->
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.clickable { }
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(72.dp),
+                                shape = RoundedCornerShape(18.dp),
+                                color = White,
+                                shadowElevation = 6.dp,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, Gold.copy(alpha = 0.15f))
+                            ) {
+                                androidx.compose.foundation.Image(
+                                    painter = androidx.compose.ui.res.painterResource(id = imgRes),
+                                    contentDescription = name,
+                                    modifier = Modifier.fillMaxSize().padding(8.dp),
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Fit
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Text(name, fontSize = 10.sp, fontWeight = FontWeight.Medium, color = Black)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(28.dp))
+            }
+
+            // ── 7. Bus tips feed ──────────────────────────────────────
+            item {
+                SectionHeader(
+                    title = if (isEn) "SmartBus Tips" else "Consejos SmartBus",
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            items(busTips) { tip ->
+                TipCard(tip = tip, modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp))
+            }
+
+            item { Spacer(modifier = Modifier.height(20.dp)) }
+
+            // ── 8. Available routes header + filters ──────────────────
+            item {
+                SectionHeader(
+                    title = if (isEn) "Available Routes" else "Rutas Disponibles",
+                    actionLabel = if (isEn) "See all" else "Ver todas",
+                    onAction = onNavigateToSearch,
+                    modifier = Modifier.padding(horizontal = 20.dp)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 20.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(RouteFilter.entries) { filter ->
+                        val isSelected = uiState.selectedFilter == filter
+                        val chipBg by animateColorAsState(
+                            targetValue = if (isSelected) Black else Color(0xFFF0F0F0),
+                            animationSpec = tween(200), label = "chip_bg"
+                        )
+                        val textColor by animateColorAsState(
+                            targetValue = if (isSelected) Gold else Color.Gray,
+                            animationSpec = tween(200), label = "chip_text"
+                        )
+                        Surface(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(20.dp))
+                                .clickable { viewModel.onFilterSelected(filter) },
+                            color = chipBg,
+                            shape = RoundedCornerShape(20.dp)
+                        ) {
+                            Text(
+                                if (isEn) filter.labelEn else filter.label,
+                                color = textColor,
+                                fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                                fontSize = 13.sp,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(14.dp))
+            }
+
+            // ── 9. Route cards ────────────────────────────────────────
+            items(filteredRoutes) { route ->
+                RouteCard(
+                    route = route,
+                    isEn = isEn,
+                    onClick = onNavigateToSearch,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 12.dp)
+                )
+            }
+        }
+    }
+}
+
+// ── Sub-composables ───────────────────────────────────────────────────────────
+
+@Composable
+private fun SectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.ExtraBold,
+            color = Black
+        )
+        if (actionLabel != null && onAction != null) {
+            TextButton(onClick = onAction, contentPadding = PaddingValues(0.dp)) {
+                Text(actionLabel, color = Gold, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
+        } else if (actionLabel != null) {
+            Text(actionLabel, fontSize = 12.sp, color = Color.Gray)
+        }
+    }
+}
+
+@Composable
+private fun TripDetailPill(icon: ImageVector, text: String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(White.copy(alpha = 0.08f))
+            .padding(horizontal = 10.dp, vertical = 6.dp)
+    ) {
+        Icon(icon, null, tint = Gold, modifier = Modifier.size(12.dp))
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(text, color = White, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+    }
+}
+
+@Composable
+private fun TipCard(tip: TipItem, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFF0F0F0))
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            // Emoji circle
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(Gold.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(tip.emoji, fontSize = 22.sp)
+            }
+            Spacer(modifier = Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(tip.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Black)
+                    Surface(
+                        color = Gold.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            tip.tag,
+                            color = GoldDark,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(tip.body, fontSize = 12.sp, color = Color.Gray, lineHeight = 17.sp)
+            }
+        }
+    }
+}
+
+@Composable
+private fun RouteCard(
+    route: RouteItem,
+    isEn: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val occupancyColor = when {
+        route.occupancy >= 90 -> Color(0xFFE53935)
+        route.occupancy >= 70 -> Color(0xFFFFA726)
+        else                  -> Color(0xFF43A047)
+    }
+    val occupancyLabel = when {
+        route.occupancy >= 90 -> if (isEn) "Almost full" else "Casi lleno"
+        route.occupancy >= 70 -> if (isEn) "Available" else "Disponible"
+        else                  -> if (isEn) "Spacious" else "Amplio"
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth().clickable { onClick() },
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Box(
+                        modifier = Modifier
+                            .size(38.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Black),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(Icons.Default.DirectionsBus, null, tint = Gold, modifier = Modifier.size(20.dp))
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            "${route.origin} → ${route.destination}",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(route.company, fontSize = 11.sp, color = Color.Gray)
+                    }
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (route.isNight) {
+                        Surface(color = Color(0xFF1A237E).copy(alpha = 0.1f), shape = RoundedCornerShape(6.dp)) {
+                            Text("🌙", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp))
+                        }
+                    }
+                    if (route.isDirect) {
+                        Surface(color = Color(0xFF1B5E20).copy(alpha = 0.1f), shape = RoundedCornerShape(6.dp)) {
+                            Text("⚡", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp))
+                        }
+                    }
+                    Surface(color = occupancyColor.copy(alpha = 0.12f), shape = RoundedCornerShape(8.dp)) {
+                        Text(
+                            occupancyLabel,
+                            color = occupancyColor,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = Color(0xFFF0F0F0))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Quick Access Grid
-            val menuItems = listOf(
-                Pair(Icons.Default.Search, stringResource(R.string.search_route)),
-                Pair(Icons.Default.ConfirmationNumber, stringResource(R.string.my_tickets)),
-                Pair(Icons.Default.MyLocation, stringResource(R.string.tracking)),
-                Pair(Icons.Default.CardGiftcard, stringResource(R.string.points))
-            )
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.height(200.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                items(menuItems) { item ->
-                    Card(
-                        onClick = {
-                            when(item.second) {
-                                menuItems[0].second -> onNavigateToSearch()
-                                menuItems[1].second -> onNavigateToTickets()
-                                menuItems[2].second -> onNavigateToTracking()
-                                menuItems[3].second -> onNavigateToPoints()
-                            }
-                        },
-                        modifier = Modifier.height(90.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Black)
-                    ) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(item.first, contentDescription = null, tint = Gold)
-                                Text(item.second, color = Gold, fontSize = 12.sp, fontWeight = FontWeight.Medium)
-                            }
-                        }
-                    }
+                RouteDetailItem(Icons.Default.AccessTime, if (isEn) "Departure" else "Salida",  route.departureTime)
+                RouteDetailItem(Icons.Default.Schedule,   if (isEn) "Duration"  else "Duración", route.duration)
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(if (isEn) "Price" else "Precio", fontSize = 10.sp, color = Color(0xFF9E9E9E))
+                    Text(route.price, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = Gold)
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Promo Banner
-            Text(
-                "Promociones Exclusivas",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            Card(
+            // Occupancy bar
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(if (isEn) "Occupancy" else "Ocupación", fontSize = 10.sp, color = Color(0xFF9E9E9E))
+                Text("${route.occupancy}%", fontSize = 10.sp, color = occupancyColor, fontWeight = FontWeight.Bold)
+            }
+            Spacer(modifier = Modifier.height(5.dp))
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(110.dp),
-                colors = CardDefaults.cardColors(containerColor = Gold.copy(alpha = 0.1f)),
-                border = androidx.compose.foundation.BorderStroke(1.dp, Gold)
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(Color(0xFFF0F0F0))
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        uiState.promotions.first().title,
-                        fontWeight = FontWeight.Bold,
-                        color = Black
-                    )
-                    Text(
-                        uiState.promotions.first().description,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Trusted Partners (New Section)
-            Text(
-                "Empresas Aliadas",
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-            
-            androidx.compose.foundation.lazy.LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 24.dp)
-            ) {
-                val partners = listOf(
-                    R.raw.busbolivariano,
-                    R.raw.busflota,
-                    R.raw.busgacela,
-                    R.raw.smartbus
-                )
-                items(partners) { partnerImg ->
-                    Surface(
-                        modifier = Modifier.size(60.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = White,
-                        shadowElevation = 2.dp
-                    ) {
-                        androidx.compose.foundation.Image(
-                            painter = androidx.compose.ui.res.painterResource(id = partnerImg),
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = route.occupancy / 100f)
+                        .fillMaxHeight()
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(occupancyColor.copy(alpha = 0.55f), occupancyColor)
+                            ),
+                            RoundedCornerShape(50)
                         )
-                    }
-                }
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun RouteDetailItem(icon: ImageVector, label: String, value: String) {
+    Column(horizontalAlignment = Alignment.Start) {
+        Text(label, fontSize = 10.sp, color = Color(0xFF9E9E9E))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, null, tint = Black, modifier = Modifier.size(12.dp))
+            Spacer(modifier = Modifier.width(3.dp))
+            Text(value, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Black, maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
     }
 }
