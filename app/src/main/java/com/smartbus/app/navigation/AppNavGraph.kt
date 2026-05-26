@@ -35,6 +35,7 @@ import com.smartbus.app.presentation.nfc.NFCPaymentViewModel
 import com.smartbus.app.presentation.notifications.NotificationsScreen
 import com.smartbus.app.presentation.help.HelpSupportScreen
 import com.smartbus.app.presentation.terms.TermsScreen
+import com.smartbus.app.presentation.profile.SecurityPrivacyScreen
 
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
@@ -49,6 +50,7 @@ fun AppNavGraph(
     navController: NavHostController
 ) {
     val registerViewModel: RegisterViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -223,7 +225,7 @@ fun AppNavGraph(
 
         composable(Screen.Profile.route) {
             ProfileScreen(
-                viewModel = ProfileViewModel(),
+                viewModel = profileViewModel,
                 onLogout = {
                     navController.navigate(Screen.Welcome.route) {
                         popUpTo(Screen.Splash.route) { inclusive = true }
@@ -233,7 +235,18 @@ fun AppNavGraph(
                 onNavigateToPaymentMethods  = { navController.navigate(Screen.PaymentMethods.route) },
                 onNavigateToNotifications   = { navController.navigate(Screen.Notifications.route) },
                 onNavigateToHelp            = { navController.navigate(Screen.HelpSupport.route) },
-                onNavigateToTerms           = { navController.navigate(Screen.Terms.route) }
+                onNavigateToTerms           = { navController.navigate(Screen.Terms.route) },
+                onNavigateToSecurity        = {
+                    // Navigate to the comprehensive security screen
+                    navController.navigate(Screen.SecurityPrivacy.route)
+                }
+            )
+        }
+
+        composable(Screen.SecurityPrivacy.route) {
+            SecurityPrivacyScreen(
+                viewModel = profileViewModel,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

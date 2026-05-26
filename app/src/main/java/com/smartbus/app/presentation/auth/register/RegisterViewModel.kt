@@ -21,6 +21,9 @@ class RegisterViewModel : ViewModel() {
     fun onPasswordChange(pass: String) = _uiState.update { it.copy(password = pass, error = null) }
     fun onConfirmPasswordChange(pass: String) = _uiState.update { it.copy(confirmPassword = pass, error = null) }
     fun onTermsToggle(accepted: Boolean) = _uiState.update { it.copy(termsAccepted = accepted, error = null) }
+    fun onDepartmentChange(dept: String) = _uiState.update { it.copy(department = dept, city = "", error = null) }
+    fun onCityChange(city: String) = _uiState.update { it.copy(city = city, error = null) }
+    fun onAddressChange(address: String) = _uiState.update { it.copy(address = address, error = null) }
     fun togglePasswordVisibility() = _uiState.update { it.copy(isPasswordVisible = !it.isPasswordVisible) }
 
     fun register(onSuccess: () -> Unit) {

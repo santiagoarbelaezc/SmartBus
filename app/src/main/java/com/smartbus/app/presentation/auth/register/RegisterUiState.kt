@@ -10,6 +10,9 @@ data class RegisterUiState(
     val confirmPassword: String = "Santi2003",
     val isPasswordVisible: Boolean = false,
     val termsAccepted: Boolean = true,
+    val department: String = "",
+    val city: String = "",
+    val address: String = "",
     val isLoading: Boolean = false,
     val error: String? = null
 )

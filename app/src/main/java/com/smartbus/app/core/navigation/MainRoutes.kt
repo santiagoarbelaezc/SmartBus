@@ -77,4 +77,7 @@ sealed class MainRoutes {
 
     @Serializable
     data object Profile : MainRoutes()
+
+    @Serializable
+    data object SecurityPrivacy : MainRoutes()
 }

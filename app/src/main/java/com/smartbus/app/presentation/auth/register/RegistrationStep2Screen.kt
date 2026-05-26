@@ -25,7 +25,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartbus.app.R
 import com.smartbus.app.ui.components.SmartBusButton
+import com.smartbus.app.ui.components.SmartBusDropdown
 import com.smartbus.app.ui.components.SmartBusTextField
+import androidx.compose.runtime.collectAsState
 import com.smartbus.app.ui.theme.Black
 import com.smartbus.app.ui.theme.Gold
 import com.smartbus.app.ui.theme.White
@@ -37,6 +39,7 @@ fun RegistrationStep2Screen(
     onNext: () -> Unit,
     onSkip: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -74,18 +77,32 @@ fun RegistrationStep2Screen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            SmartBusTextField(
-                value = "Armenia, Quindío",
-                onValueChange = {},
+            SmartBusDropdown(
+                label = "Departamento",
+                options = colombiaData.keys.toList().sorted(),
+                selectedOption = uiState.department,
+                onOptionSelected = { viewModel.onDepartmentChange(it) },
+                leadingIcon = { Icon(Icons.Default.Map, contentDescription = null, tint = Gold) }
+            )
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            SmartBusDropdown(
                 label = "Ciudad",
+                options = if (uiState.department.isNotEmpty()) {
+                    colombiaData[uiState.department] ?: emptyList()
+                } else emptyList(),
+                selectedOption = uiState.city,
+                onOptionSelected = { viewModel.onCityChange(it) },
+                enabled = uiState.department.isNotEmpty(),
                 leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null, tint = Gold) }
             )
             
             Spacer(modifier = Modifier.height(12.dp))
             
             SmartBusTextField(
-                value = "",
-                onValueChange = {},
+                value = uiState.address,
+                onValueChange = { viewModel.onAddressChange(it) },
                 label = "Dirección (Opcional)",
                 leadingIcon = { Icon(Icons.Default.Home, contentDescription = null, tint = Gold) }
             )

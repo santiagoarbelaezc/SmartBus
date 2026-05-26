@@ -22,4 +22,5 @@ sealed class Screen(val route: String) {
     object PaymentMethods : Screen("payment_methods")
     object HelpSupport : Screen("help_support")
     object Terms : Screen("terms")
+    object SecurityPrivacy : Screen("security_privacy")
 }

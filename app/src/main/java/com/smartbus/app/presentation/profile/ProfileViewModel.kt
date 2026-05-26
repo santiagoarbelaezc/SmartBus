@@ -6,6 +6,7 @@ import com.smartbus.app.core.LanguageManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class ProfileViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -13,6 +14,30 @@ class ProfileViewModel : ViewModel() {
 
     fun onLanguageChanged(language: AppLanguage) {
         LanguageManager.setLanguage(language)
-        _uiState.value = _uiState.value.copy(currentLanguage = language.displayName)
+        _uiState.update { it.copy(currentLanguage = language.displayName) }
+    }
+
+    fun updateProfile(name: String, email: String, phone: String, dept: String, city: String) {
+        _uiState.update { it.copy(name = name, email = email, phone = phone, department = dept, city = city) }
+    }
+
+    fun changePassword(old: String, new: String) {
+        // Simulation of password change success
+    }
+
+    fun toggleBiometric(enabled: Boolean) {
+        _uiState.update { it.copy(isBiometricEnabled = enabled) }
+    }
+
+    fun toggle2FA(enabled: Boolean) {
+        _uiState.update { it.copy(is2FAEnabled = enabled) }
+    }
+
+    fun toggleLocationData(enabled: Boolean) {
+        _uiState.update { it.copy(shareLocationData = enabled) }
+    }
+
+    fun terminateAllSessions() {
+        _uiState.update { it.copy(activeSessions = emptyList()) }
     }
 }

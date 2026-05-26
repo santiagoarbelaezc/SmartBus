@@ -42,6 +42,7 @@ import com.smartbus.app.presentation.points.PointsScreen
 import com.smartbus.app.presentation.points.PointsViewModel
 import com.smartbus.app.presentation.profile.ProfileScreen
 import com.smartbus.app.presentation.profile.ProfileViewModel
+import com.smartbus.app.presentation.profile.SecurityPrivacyScreen
 import com.smartbus.app.presentation.search.SearchScreen
 import com.smartbus.app.presentation.search.SearchViewModel
 import com.smartbus.app.presentation.seatselection.SeatSelectionScreen
@@ -136,6 +137,7 @@ fun AppNavigation() {
 @Composable
 private fun BuildNavHost(navController: NavHostController) {
     val registerViewModel: RegisterViewModel = viewModel()
+    val profileViewModel: ProfileViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -354,7 +356,7 @@ private fun BuildNavHost(navController: NavHostController) {
         // ── Profile ──────────────────────────────────────────────────
         composable<MainRoutes.Profile> {
             ProfileScreen(
-                viewModel = ProfileViewModel(),
+                viewModel = profileViewModel,
                 onLogout = {
                     navController.navigate(MainRoutes.Welcome) {
                         popUpTo<MainRoutes.Splash> { inclusive = true }
@@ -364,7 +366,16 @@ private fun BuildNavHost(navController: NavHostController) {
                 onNavigateToPaymentMethods    = { navController.navigate(MainRoutes.PaymentMethods) },
                 onNavigateToNotifications     = { navController.navigate(MainRoutes.Notifications) },
                 onNavigateToHelp              = { navController.navigate(MainRoutes.HelpSupport) },
-                onNavigateToTerms             = { navController.navigate(MainRoutes.Terms) }
+                onNavigateToTerms             = { navController.navigate(MainRoutes.Terms) },
+                onNavigateToSecurity          = { navController.navigate(MainRoutes.SecurityPrivacy) }
+            )
+        }
+
+        // ── Security & Privacy ───────────────────────────────────────
+        composable<MainRoutes.SecurityPrivacy> {
+            SecurityPrivacyScreen(
+                viewModel = profileViewModel,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

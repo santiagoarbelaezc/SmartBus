@@ -33,17 +33,24 @@ import com.smartbus.app.ui.components.LanguageSelectorBottomSheet
 import com.smartbus.app.ui.theme.*
 import com.smartbus.app.core.AppTheme
 import com.smartbus.app.core.ThemeManager
+import com.smartbus.app.presentation.auth.register.colombiaData
+import com.smartbus.app.ui.components.SmartBusButton
+import com.smartbus.app.ui.components.SmartBusDropdown
+import com.smartbus.app.ui.components.SmartBusTextField
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel,
     onLogout: () -> Unit,
-    onNavigateToTravelCredit: () -> Unit   = {},
-    onNavigateToPaymentMethods: () -> Unit = {},
-    onNavigateToNotifications: () -> Unit  = {},
-    onNavigateToHelp: () -> Unit           = {},
-    onNavigateToTerms: () -> Unit          = {}
+    onNavigateToTravelCredit: () -> Unit,
+    onNavigateToPaymentMethods: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
+    onNavigateToHelp: () -> Unit,
+    onNavigateToTerms: () -> Unit,
+    onNavigateToSecurity: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val currentLang by LanguageManager.currentLanguage.collectAsState()
@@ -51,6 +58,7 @@ fun ProfileScreen(
 
     var showLanguageSheet by remember { mutableStateOf(false) }
     var showThemeSheet by remember { mutableStateOf(false) }
+    var showEditSheet by remember { mutableStateOf(false) }
     val currentTheme by ThemeManager.currentTheme.collectAsState()
 
     if (showLanguageSheet) {
@@ -58,6 +66,15 @@ fun ProfileScreen(
     }
     if (showThemeSheet) {
         ThemeSelectorBottomSheet(onDismiss = { showThemeSheet = false })
+    }
+    if (showEditSheet) {
+        EditProfileBottomSheet(
+            uiState = uiState,
+            onDismiss = { showEditSheet = false },
+            onSave = { name, email, phone, dept, city ->
+                viewModel.updateProfile(name, email, phone, dept, city)
+            }
+        )
     }
 
     Scaffold(
@@ -129,7 +146,19 @@ fun ProfileScreen(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        // Floating Edit Button
+                        IconButton(
+                            onClick = { showEditSheet = true },
+                            modifier = Modifier
+                                .offset(x = 35.dp, y = (-25).dp)
+                                .size(32.dp)
+                                .clip(CircleShape)
+                                .background(Gold)
+                        ) {
+                            Icon(Icons.Default.Edit, contentDescription = null, tint = Black, modifier = Modifier.size(16.dp))
+                        }
+
+                        Spacer(modifier = Modifier.height(0.dp))
 
                         Text(
                             uiState.name,
@@ -256,6 +285,14 @@ fun ProfileScreen(
                             subtitle = if (isEn) "Trip alerts" else "Alertas de viaje",
                             onClick = onNavigateToNotifications,
                             badgeCount = 2
+                        )
+                        ProfileDivider()
+                        ProfileMenuRow(
+                            icon = Icons.Default.Security,
+                            iconBg = Color(0xFF37474F),
+                            title = if (isEn) "Security" else "Seguridad",
+                            subtitle = if (isEn) "Passwords & privacy" else "Contraseñas y privacidad",
+                            onClick = { onNavigateToSecurity() }
                         )
                     }
                 }
@@ -562,6 +599,137 @@ fun ThemeSelectorBottomSheet(onDismiss: () -> Unit) {
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditProfileBottomSheet(
+    uiState: ProfileUiState,
+    onDismiss: () -> Unit,
+    onSave: (String, String, String, String, String) -> Unit
+) {
+    var name by remember { mutableStateOf(uiState.name) }
+    var email by remember { mutableStateOf(uiState.email) }
+    var phone by remember { mutableStateOf(uiState.phone) }
+    var dept by remember { mutableStateOf(uiState.department) }
+    var city by remember { mutableStateOf(uiState.city) }
+
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Gold.copy(alpha = 0.3f)) }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            Text("Editar Perfil", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(24.dp))
+
+            SmartBusTextField(value = name, onValueChange = { name = it }, label = "Nombre Completo")
+            Spacer(modifier = Modifier.height(16.dp))
+            SmartBusTextField(value = email, onValueChange = { email = it }, label = "Correo Electrónico")
+            Spacer(modifier = Modifier.height(16.dp))
+            SmartBusTextField(value = phone, onValueChange = { phone = it }, label = "Teléfono")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            SmartBusDropdown(
+                label = "Departamento",
+                options = colombiaData.keys.toList().sorted(),
+                selectedOption = dept,
+                onOptionSelected = {
+                    dept = it
+                    city = ""
+                }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SmartBusDropdown(
+                label = "Ciudad",
+                options = if (dept.isNotEmpty()) colombiaData[dept] ?: emptyList() else emptyList(),
+                selectedOption = city,
+                onOptionSelected = { city = it },
+                enabled = dept.isNotEmpty()
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            SmartBusButton(
+                text = "Guardar Cambios",
+                onClick = {
+                    onSave(name, email, phone, dept, city)
+                    onDismiss()
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChangePasswordBottomSheet(
+    onDismiss: () -> Unit,
+    onConfirm: (String, String) -> Unit
+) {
+    var oldPass by remember { mutableStateOf("") }
+    var newPass by remember { mutableStateOf("") }
+    var confirmPass by remember { mutableStateOf("") }
+
+    val sheetState = rememberModalBottomSheetState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle(color = Gold.copy(alpha = 0.3f)) }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+                .padding(bottom = 24.dp)
+        ) {
+            Text("Cambiar Contraseña", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(24.dp))
+
+            SmartBusTextField(
+                value = oldPass,
+                onValueChange = { oldPass = it },
+                label = "Contraseña Actual",
+                visualTransformation = PasswordVisualTransformation()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SmartBusTextField(
+                value = newPass,
+                onValueChange = { newPass = it },
+                label = "Nueva Contraseña",
+                visualTransformation = PasswordVisualTransformation()
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            SmartBusTextField(
+                value = confirmPass,
+                onValueChange = { confirmPass = it },
+                label = "Confirmar Nueva Contraseña",
+                visualTransformation = PasswordVisualTransformation()
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            SmartBusButton(
+                text = "Actualizar Contraseña",
+                onClick = {
+                    if (newPass == confirmPass && newPass.isNotEmpty()) {
+                        onConfirm(oldPass, newPass)
+                        onDismiss()
+                    }
+                }
+            )
         }
     }
 }

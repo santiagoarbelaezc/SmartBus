@@ -59,6 +59,18 @@ fun PaymentScreen(
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
         ) {
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            Text(
+                "¡Casi listo para tu próximo\ndestino!",
+                style = MaterialTheme.typography.headlineSmall,
+                color = Gold,
+                fontWeight = FontWeight.ExtraBold,
+                lineHeight = 32.sp
+            )
+            
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Summary Card
             SmartBusCard(
                 modifier = Modifier.fillMaxWidth(),
